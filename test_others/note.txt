@@ -1,0 +1,267 @@
+QWidget{
+background-color: rgb(255, 255, 0);/*background-color: rgb(79, 173, 255);*/
+max-width:800px;
+max-height:600px;
+
+}
+
+background-color:transparent;
+
+        self.msgBox.clicked.connect(self.message)
+        self.mesButton.clicked.connect(self.secMes)
+
+    def message(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("This is title")
+        msg.setText("This is a simple text here")
+        #msg.setIcon(QMessageBox.Information)
+        #msg.setIcon(QMessageBox.Warning)
+        msg.setIcon(QMessageBox.Critical)
+        msg.setIcon(QMessageBox.aboutQt)
+        x = msg.exec_()
+    def secMes(self):
+        #QMessageBox.about(self, "Title", "text")
+        QMessageBox.aboutQt(self)
+
+https://codeload.github.com/AlexRubyko/ItemsStorageApp/zip/refs/heads/main
+https://www.youtube.com/watch?v=0r-z49pD31E
+
+convert exe 
+https://www.youtube.com/watch?v=LLPubtQ3jpI
+
+qlineargradient(spread:pad, x1:1, y1:0.710045, x2:1, y2:0, stop:0.0348259 rgba(0, 170, 255, 255), stop:1 rgba(255, 255, 255, 255));
+
+Ui Convert To Python
+pyuic5 -x test.ui -o test.py
+
+
+
+
+Return 
+Supplier Customer Ledger
+Report
+Expense
+
+
+Extra Licence Key For Backup = ansarul0185101920202021000000543333218754332229875432
+
+
+
+# import EAN13 from barcode module
+from barcode import EAN13
+  
+# Make sure to pass the number as string
+number = '5901234123457'
+  
+# Now, let's create an object of EAN13
+# class and pass the number
+my_code = EAN13(number)
+  
+# Our barcode is ready. Let's save it.
+my_code.save("new_code")
+
+
+
+
+
+
+
+            <tr>
+                <td colspan="1"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Return Amount </td>
+                <td> {{debit}} </td>
+            </tr>
+            <tr>
+                <td colspan="1"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Grand Total Balance </td>
+                <td> {{total|float-debit|float}} </td>
+            </tr>
+            <tr>
+                <td colspan="1"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Paid </td>
+                <td> {{paid|float-returnamount|float}} </td>
+            </tr>
+              {% set grandfinal = total|float-debit|float %}
+              {% set paidfinal = paid|float-returnamount|float %}
+            <tr>
+                <td colspan="1"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Due Balance </td>
+                <td> {{ grandfinal-paidfinal}} </td>
+            </tr>
+
+
+
+
+			               {% for i in invoice %} 
+               <tr>
+                   <td>{{i[5]}}</td>
+                   <td> {{i[1]}} </td>
+                   <td> {{i[2]}} </td>
+                   <td>  </td>
+                   <td>  </td>
+                   <td> + {{i[3]}} </td>
+                   <td> {{i[4]}} </td>
+               </tr>
+               {% endfor %}
+               {% for cash in cash %} 
+               <tr>
+                   <td>{{cash[4]}}</td>
+                   <td>  </td>
+                   <td> {{cash[1]}} </td>
+                   <td> {{cash[3]}}  </td>
+                   <td>  </td>
+                   <td> + {{cash[2]}} </td>
+                   <td>  </td>
+               </tr>
+               {% endfor %}
+
+               {% for repro in repro %} 
+                  <tr>
+                   <td>{{repro[4]}}</td>
+                   <td>  </td>
+                   <td> Return </td>
+                   <td>  </td>
+                   <td> {{repro[1]|float * repro[2] |float - repro[3]|float}}  </td>
+                   <td> - {{repro[5]}} </td>
+                   <td>  </td>
+                  </tr>
+                {% endfor %}
+               <tr>
+                <td colspan="1"></td>
+                <td colspan="2"></td>
+                <td> Total Balance </td>
+                <td> {{debit}} </td>
+                <td> {{paid|float - returnamount|float}} </td>
+                <td> {{total}} </td>
+                </tr>
+
+
+		import requests
+        url = "http://66.45.237.70/api.php?username=ansarul&password=BFVJ37SP&number=01976269095&message=Test API"
+        headers = {
+          'Content-Type': 'application/x-www-form-urlencoded'
+          }
+
+
+				
+        payload  = {"number":phone,
+            "message": f" Hi {name} \n Address : {address} \n Sender Account : {sender} \n Our Account : {rec} \n Amount : {amount} \n Trx : {trx} \n Your admission successfully Submitted now Pending Please Wait few hours  \n For Any Help Please Contact : 01976269095 \n Best Solution Online"}
+        response = requests.request("POST", url, headers=headers, data = payload)   
+        
+        return redirect(request.url)
+
+
+
+        email = session['email']
+        msg = Message(subject="Admission Request Apply ", sender="admin@bestsolution.me", recipients=[email])
+        msg.body = f"Welcome \n Hi {name} \n Address : {address} \n Sender Account : {sender} \n Our Account : {rec} \n Amount : {amount} \n Trx : {trx} \n Your admission successfully Submitted Please Wait few hours  \n For Any Help Please Contact : 01976269095 \n Best Solution Online"
+        mail.send(msg)  
+
+		
+		display size 1366*768
+		product = w 842 h 594
+		purchase = w 952 h 622
+		sales = w 952 h 622
+		stock = w 869 h 587
+		report = w 775 h 636
+		cash trx = w 867 h 580
+		sup cus = 763 h 543
+		damage = w 739 h 527
+		p s return = w 934 h 644
+		p s invoice = w 931 h 534
+		p s item history = w 956 h 544
+		ledger = w 681 h 487
+		ledger details = w 976 h 601
+		pro adsujtment = w 855 h 594
+		
+		
+		
+import datetime
+
+date = datetime.datetime.now() + datetime.timedelta(days=7)
+print(date)
+
+currentdate = datetime.datetime.now() 
+print(currentdate)
+
+date = datetime.datetime.now() + datetime.timedelta(days=1)
+print(date)
+
+time = "2021-11-01 22:30:40.994952"
+time = datetime.datetime.strptime(time,"%Y-%m-%d %H:%M:%S.%f")
+
+if(currentdate<time):
+    print(True)
+else:
+    print(False)    
+	
+
+import cryptocode
+
+encoded = cryptocode.encrypt("0","mypassword")
+print(encoded)
+decoded = cryptocode.decrypt("fw==*/MlcBAnJLVWXLC3y/Z3X6A==*TzgCKg7H2sAnHtqKb3Q7Tw==*Nf6Sb0oQj2qtCIHO2fM0nA==", "mypassword")
+print(decoded)
+	
+            buy = float(self.buy.text())
+            qtn = float(self.qtn.text())    
+            total = qtn*buy 
+            total2 = str(total)
+            self.itemvalue.setText(str(total2))
+            if self.discount_p.text()=="":
+                self.totalpp.setText(str(total2))
+            else:
+                if self.ppercent.isChecked():
+                    di = float(self.discount_p.text())
+                    t = total*di/100
+                    v = total-t
+                    self.totalpp.setText(str(v))  
+                else:
+                    di = float(self.discount_p.text())
+                    t = total-di
+                    self.totalpp.setText(str(t)) 
+		
+		
+		
+		               {% set sale = namespace(value=0) %}
+               {% set sqtn = namespace(value=0) %}
+               {% set salereturn = namespace(value=0) %}
+               {% set salereturnqtn = namespace(value=0) %}
+
+               {% set purchase = namespace(value=0) %}
+               {% set pqtn = namespace(value=0) %}
+               {% set preturn = namespace(value=0) %}
+               {% set preturnqtn = namespace(value=0) %}
+
+               {% set damage = namespace(value=0) %}
+               {% set damageqtn = namespace(value=0) %}
+
+               {% set increase = namespace(value=0) %}
+               {% set increaseqtn = namespace(value=0) %}
+
+               {% set decrase = namespace(value=0) %}
+               {% set decreaseqtn = namespace(value=0) %}
+		
+		
+		
+		
+		
+		https://drive.google.com/file/d/15hnofkRuaGHqr19SMIaWsIRV6LL-L6Z-/view
+		username : admin 
+		Password : admin
+		
+		
+		
+		
+		
+		
+		
+

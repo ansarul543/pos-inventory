@@ -1,0 +1,179 @@
+<style>
+    .main{
+        width: 100%;
+        border: 2px solid black;
+    }
+    h2,h3,h5{
+        color: rgb(43, 41, 32);
+        margin: 0;
+        font-weight: bold;
+    }
+    h5{
+        padding: 5px;
+    }
+    p{
+        margin: 0;
+    }
+
+    td {
+     border: dotted;
+     border-left: none;
+     border-right: none;
+     text-align: center;
+     padding: 8px; }
+     table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+
+        }
+</style>
+
+    <div class="main" >
+        <div class="header" style="text-align: center;" >
+            <h2>{{setting[1]}}</h2>
+            <p style="padding-top: 5px;"> {{setting[6]}} </p>
+            <p>Phone : {{setting[2]}} <span>{% if setting[3]!="" %} Email : {{setting[3]}} {% endif %}</span> </p>
+            <p >{% if setting[4]!="" %} Website : {{setting[4]}} {% endif %}</p>
+            <p style="margin-bottom: 40px;">{% if setting[5]!="" %} Trade License / Company : {{setting[5]}} {% endif %}</p>
+        </div>
+        <div style="border: 3px solid black; margin-bottom: 5px;"></div>
+
+        <div style="margin-bottom: 100px;">
+            <h3 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;">Sales Invoice</h3>
+                <div>
+                    <p> Invoice No : {{invoice[0]}} </p>
+                    <p> Sale Date : {{invoice[1]}}</p>
+
+                    {% if invoice[11] ==0 %}
+                    {% else %}
+                    <p>Customer Name : {{invoice[2]}}  </p> 
+                    <p>Address : {{invoice[3]}} </p> 
+                    <p>Contact No : {{invoice[4]}}</p>
+                    {% endif %}
+                </div>
+             <br/>
+            
+             {% if data|length>0 %} 
+             <table width="100%">
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Rate</th>
+                    <th>Discount</th>
+                    <th>Amount</th>
+                </tr>
+ 
+                {% for data in data %}
+                <tr>
+                 <td>{{data[3]}} 
+                     {% if data[9]!="0" %} 
+                     <span>VAT {{data[9]}}%: {{(data[5]|float*data[4]|float-data[7]|float) * data[9]|float/100}}</span>
+                     {% endif %}
+                 </td>
+                 <td>{{data[5]}} {{data[6]}}</td>
+                 <td>{{data[4]}}</td>
+                 <td>
+                     {% if data[10]!="0" %}
+                     ({{data[10]}}%)
+                     {% endif %} {{data[7]}}
+                 </td>
+                 <td>{{ data[5]|float * data[4]|float - data[7]|float}} </td>
+                 </tr>
+                 {% endfor %}
+    
+             <tr>
+                 <td colspan="3" style="border: none;"></td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right; border-bottom: dotted;">
+                     <h5>Vat : </h5>
+                     <h5>Transport/Labour : </h5>
+                     <h5>Sub Total :</h5>
+                     <h5>Discount : 
+                         {% if invoice[7]!="0" %}
+                         ( {{invoice[7]|float/(total|float+invoice[5]|float+invoice[6]|float)*100}} % )
+                         {% endif %}
+                     </h5>
+                 </td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right; border-bottom:dotted;">
+                     {% if invoice[5]=="0" %}
+                     <p>0.00</p>
+                     {% else %}
+                     <p>{{invoice[5]}}</p>
+                     {% endif %}
+                     {% if invoice[6]=="0" %}
+                     <p>0.00</p>
+                     {% else %}
+                     <p>{{invoice[6]}}</p>
+                     {% endif %}
+                   <p>{{total|float+invoice[5]|float+invoice[6]|float}}</p>
+                   {% if invoice[7]=="0" %}
+                   <p>0.00</p>
+                   {% else %}
+                   <p>{{invoice[7]}}</p>
+                   {% endif %}
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="3" style="border: none;"></td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border-bottom:dotted;">
+                     <h5>Total :</h5>
+                     <h5>Paid : </h5>
+                 </td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border-bottom:dotted;">
+                   <p>{{total|float+invoice[5]|float+invoice[6]|float-invoice[7]|float}}</p>
+                   {% if invoice[8]=="0" %}
+                   <p>0.00</p>
+                   {% else %}
+                   <p>{{invoice[8]}}</p>
+                   {% endif %}
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="3" style="border: none;"></td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
+                     <h5>Due :</h5>
+                 </td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
+                     <p>{{total|float+invoice[5]|float+invoice[6]|float-invoice[7]|float-invoice[8]|float}}</p>
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="3" style="border: none;"></td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
+                     <h5>Previous Due :</h5>
+                 </td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
+                     <p>{{invoice[12]}}</p>
+                 </td>
+             </tr>
+             <tr>
+                 <td colspan="3" style="border: none;"></td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
+                     <h5>Total Due :</h5>
+                 </td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
+                     <p>{{total|float+invoice[5]|float+invoice[6]|float-invoice[7]|float-invoice[8]|float + invoice[12]|float}}</p>
+                 </td>
+             </tr>
+             </table>
+             {% else %} 
+             <div>
+                <p> Total Amount : {{invoice[9]}} </p>
+                <p> Paid Amount : {{invoice[8]}}</p>
+                <p> Due Amount : {{invoice[9]|float-invoice[8]|float}}  </p> 
+                <p> Previous Due : {{invoice[12]}} </p> 
+                <p> Total Due : {{(invoice[9]|float-invoice[8]|float)+invoice[12]|float}}</p>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+             {% endif %}
+
+            <tr style="margin-top: 100px;">
+                <td  style="border: none;" colspan="4"></td>
+                <td  style="float: right; border-top: 1px solid black;"><h5> Authorized Signature</h5></td>
+            </tr>
+        </div>
+      
+        <h5 style="text-align: center; margin-top: 50px;"> {{setting[7]}} </h5>
+        
+    </div>

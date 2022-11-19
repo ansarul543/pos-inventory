@@ -1,0 +1,141 @@
+<style>
+    .main{
+        width: 100%;
+        border: 2px solid black;
+        padding: 15px;
+    }
+    h2,h3,h5{
+        color: rgb(43, 41, 32);
+        margin: 0;
+        font-weight: bold;
+    }
+    h5{
+        padding: 5px;
+    }
+    p{
+        margin: 0;
+    }
+
+    td,th {
+     border: 1px solid black;
+     text-align: center;
+     padding: 5px;
+    }
+     table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+
+        }
+</style>
+
+    <div class="main" >
+        <dic class="header" style="text-align: center;" >
+            <h2>{{setting[1]}}</h2>
+            <p style="padding-top: 5px;"> {{setting[6]}} </p>
+            <p>Phone : {{setting[2]}} <span>{% if setting[3]!="" %} Email : {{setting[3]}} {% endif %}</span> </p>
+            <p style="margin-bottom: 40px;">{% if setting[4]!="" %} Website : {{setting[4]}} {% endif %}</p>
+        </dic>
+        <div style="border: 3px solid black; margin-bottom: 5px;"></div>
+
+        <div style="margin-bottom: 20px;">
+            <h3 style=" padding: 5px;border: 1px solid black; margin-bottom: 20px; ">Sales Ledger</h3>
+                <div>
+                    {% if tod=="" and tod=="" %}
+                    {% else %}
+                    <p>From Date : {{fromd}} </p> 
+                    <p>To Date : {{tod}}</p>
+                    {% endif %}    
+                </div>
+             <br/>
+            <table width="100%">
+               <tr>
+                   <th>Date</th>
+                   <th>Invoice</th>
+                   <th>Customer Name</th>
+                   <th>Type</th>
+                   <th>Description</th>
+                   <th>Debit</th>
+                   <th>Credit</th>
+                   <th>Balance</th>
+               </tr>
+               {% for i in invoice %} 
+               <tr>
+                   <td>{{i[5]}}</td>
+                   <td> {{i[1]}} </td>
+                   <td> {{i[6]}} </td>
+                   <td> {{i[2]}} </td>
+                   <td>  </td>
+                   <td>  </td>
+                   <td> + {{i[3]}} </td>
+                   <td> {{i[4]}} </td>
+               </tr>
+               {% endfor %}
+               {% for cash in cash %} 
+               <tr>
+                   <td>{{cash[4]}}</td>
+                   <td>  </td>
+                   <td> {{cash[5]}} </td>
+                   <td> {{cash[1]}} </td>
+                   <td> {{cash[3]}}  </td>
+                   <td>  </td>
+                   <td> + {{cash[2]}} </td>
+                   <td>  </td>
+               </tr>
+               {% endfor %}
+
+               {% for repro in repro %} 
+                  <tr>
+                   <td>{{repro[4]}}</td>
+                   <td>  </td>
+                   <td> {{repro[6]}} </td>
+                   <td> Return </td>
+                   <td>  </td>
+                   <td> {{repro[1]|float * repro[2] |float - repro[3]|float}}  </td>
+                   <td> - {{repro[5]}} </td>
+                   <td>  </td>
+                  </tr>
+                {% endfor %}               
+               <tr>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Total Balance </td>
+                <td> {{debit}} </td>
+                <td> {{paid|float - returnamount|float}} </td>
+                <td> {{total}} </td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Return Amount </td>
+                <td> {{debit}} </td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Grand Total Balance </td>
+                <td> {{total|float-debit|float}} </td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Paid </td>
+                <td> {{paid|float - returnamount|float}} </td>
+            </tr>
+            {% set grandfinal = total|float-debit|float %}
+            {% set paidfinal = paid|float-returnamount|float %}
+            <tr>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td colspan="2"></td>
+                <td> Due Balance </td>
+                <td> {{ grandfinal-paidfinal}} </td>
+            </tr>
+            </table>
+        </div>
+      
+        
+        
+    </div>

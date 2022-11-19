@@ -1,0 +1,187 @@
+<style>
+    .main{
+        width: 100%;
+        border: 2px solid black;
+    }
+    h2,h3,h5{
+        color: rgb(43, 41, 32);
+        margin: 0;
+        font-weight: bold;
+    }
+    h5{
+        padding: 5px;
+    }
+    p{
+        margin: 0;
+    }
+
+    td,th {
+     border: 1px solid black;
+     text-align: center;
+     background-color: rgb(248, 241, 229);
+     color: black;
+     padding: 8px; 
+    }
+     table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        overflow: hidden;
+        }
+</style>
+
+    <div class="main" >
+  
+        <div style="margin-bottom: 20px;margin-top: 20px;">
+            <div>
+                    <p> Product Name : {{pro[0]}} </p>
+                    <p> Product Code : {{pro[1]}}  </p>
+                    <p> Current Stock : {{pro[2]}} {{pro[3]}} </p>
+                    <p> Buy Rate : {{pro[4]}} </p>
+                    <p> Whole Sale :  {{pro[5]}}</p>
+                    <p> Sales Rate :  {{pro[6]}}</p>
+                    <p> Vat : {{pro[7]}} % </p>
+
+            </div>
+         <br/>
+            <h3 style="text-align: center; padding: 5px;border: 1px solid black; "> </h3>
+                <div>
+                    {% if fromd=="" and tod=="" %}
+                    <h3>{{name}}</h3>
+                    {% else %}
+                    <p>From Date : {{fromd}} </p> 
+                    <p>To Date : {{tod}}</p>
+                    {% endif %}  
+                </div>
+             <br/>
+             <h3 style="text-align: center; padding: 5px;border: 1px solid black; ">Product Ledger</h3>
+             <br/>
+            <table width="100%">
+               <tr>
+                   <th>Date</th>
+                   <th>Type</th>
+                   <th>Supplier Name</th>
+                   <th>Customer Name</th>
+                   <th>Rate</th>
+                   <th>Quantity</th>
+                   <th>Discount</th>
+                   <th>Amount</th>
+               </tr>
+               {% set sale = namespace(value=0) %}
+               {% set sqtn = namespace(value=0) %}
+               {% set salereturn = namespace(value=0) %}
+               {% set salereturnqtn = namespace(value=0) %}
+
+               {% set purchase = namespace(value=0) %}
+               {% set pqtn = namespace(value=0) %}
+               {% set preturn = namespace(value=0) %}
+               {% set preturnqtn = namespace(value=0) %}
+
+               {% set damage = namespace(value=0) %}
+               {% set damageqtn = namespace(value=0) %}
+
+               {% set increase = namespace(value=0) %}
+               {% set increaseqtn = namespace(value=0) %}
+
+               {% set decrase = namespace(value=0) %}
+               {% set decreaseqtn = namespace(value=0) %}
+
+               {% for data in data %}
+
+               {% if data[1]=="Product Minus" %}
+               {% set decrase.value=decrase.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set decreaseqtn.value=decreaseqtn.value + data[5]|float %}
+               {% endif %} 
+
+               {% if data[1]=="Product Increase" %}
+               {% set increase.value=increase.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set increaseqtn.value=increaseqtn.value + data[5]|float %}
+               {% endif %} 
+
+               {% if data[1]=="Damage" %}
+               {% set damage.value=damage.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set damageqtn.value=damageqtn.value + data[5]|float %}
+               {% endif %}  
+
+               {% if data[1]=="Sales Return" %}
+               {% set salereturn.value=salereturn.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set salereturnqtn.value=salereturnqtn.value + data[5]|float %}
+               {% endif %}    
+
+               {% if data[1]=="Purchase Return" %}
+               {% set preturn.value=preturn.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set preturnqtn.value=preturnqtn.value + data[5]|float %}
+               {% endif %}                
+
+               {% if data[1]=="Purchase" %}
+               {% set purchase.value=purchase.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set pqtn.value=pqtn.value + data[5]|float %}
+               {% endif %} 
+
+               {% if data[1]=="Sales" %}
+                    {% set sale.value=sale.value + data[4]|float * data[5]|float - data[7]|float %}
+                     {% set sqtn.value=sqtn.value + data[5]|float %}
+                {% endif %} 
+                  <tr>
+                      <td>{{data[0]}}</td>
+                      <td>{{data[1]}}</td>
+                      <td>
+                        {% if data[2]!=None %}
+                        {{data[2]}}
+                        {% else %}
+                        {% endif %}
+                       </td>
+                    <td>
+                        {% if data[3]!=None %}
+                        {{data[3]}}
+                        {% else %}
+                        {% endif %}
+                    </td>
+                    <td>{{data[4]}} </td>
+                    <td>{{data[5]}} {{data[6]}}</td>
+                    <td>{{data[7]}}</td>
+                    <td>{{data[4]|float * data[5]|float - data[7]|float}}</td>
+                  </tr>
+                {% endfor %}
+                <tr> 
+                    <td colspan="2"></td> 
+                    <td colspan="2"></td>
+                    <td > Purchase</td>  <td> {{pqtn.value}} {{pro[3]}} </td> <td>Total </td> <td > {{purchase.value}}</td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td> 
+                    <td colspan="2"></td>
+                    <td >Purchase Return</td>  <td> {{preturnqtn.value}} {{pro[3]}} </td> <td>Total </td> <td >{{preturn.value}} </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td> 
+                    <td colspan="2"></td>
+                    <td >Sales</td>  <td> {{sqtn.value}} {{pro[3]}}</td> <td>Total </td> <td > {{sale.value}} </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="2"></td>
+                    <td > Sales Return</td>  <td> {{salereturnqtn.value}} {{pro[3]}} </td> <td>Total </td> <td > {{salereturn.value}} </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="2"></td>  
+                    <td >Damage</td >  <td> {{damageqtn.value}} {{pro[3]}} </td> <td>Total </td> <td > {{damage.value}} </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="2"></td>
+                    <td >Increase</td>  <td> {{increaseqtn.value}} {{pro[3]}}</td> <td>Total </td> <td > {{increase.value}} </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td colspan="2"></td> 
+                    <td >Minus</td>  <td> {{decreaseqtn.value}} {{pro[3]}} </td> <td>Total </td> <td > {{decrase.value}} </td>
+                </tr>
+
+            </table>
+
+        </div>
+      
+
+        
+    </div>

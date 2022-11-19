@@ -1,0 +1,72 @@
+<style>
+    .main{
+        width: 100%;
+        border: 2px solid black;
+    }
+    h2,h3,h5{
+        color: rgb(43, 41, 32);
+        margin: 0;
+        font-weight: bold;
+    }
+    h5{
+        padding: 5px;
+    }
+    p{
+        margin: 0;
+    }
+
+    td,th {
+     border: 1px solid black;
+     text-align: center;
+     background-color: rgb(248, 241, 229);
+     color: black;
+     padding: 8px; 
+    }
+     table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        overflow: hidden;
+        }
+</style>
+
+    <div class="main" >
+ 
+        <div style="border: 3px solid black; margin-bottom: 5px;"></div>
+
+        <div style="margin-bottom: 50px;">
+            <h3 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;"> </h3>
+                <div>
+                    {% if fromd=="" and tod=="" %}
+                    <h3>{{name}}</h3>
+                    {% else %}
+                    <p>From Date : {{fromd}} </p> 
+                    <p>To Date : {{tod}}</p>
+                    {% endif %}  
+                </div>
+             <br/>
+            <table width="100%">
+               <tr>
+                   <th>Date</th>
+                   <th>Item Name</th>
+                   <th>Quantity</th>
+                   <th>Price</th>
+                   <th>Total Amount</th>
+               </tr>
+
+               {% for data in data %}
+               <tr>
+                <td>{{data[0]}}</td>
+                <td>{{data[1]}}</td>
+                <td>{{data[2]}} {{data[3]}}</td>
+                <td>{{data[4]}} </td>
+                <td>{{ data[4]|float * data[2]|float}} </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+
+        </div>
+      
+
+        
+    </div>

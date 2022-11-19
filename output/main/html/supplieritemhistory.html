@@ -1,0 +1,124 @@
+<style>
+    .main{
+        width: 100%;
+        border: 2px solid black;
+    }
+    h2,h3,h5{
+        color: rgb(43, 41, 32);
+        margin: 0;
+        font-weight: bold;
+    }
+    h5{
+        padding: 5px;
+    }
+    p{
+        margin: 0;
+    }
+
+    td,th {
+     border: 1px solid black;
+     text-align: center;
+     background-color: rgb(248, 241, 229);
+     color: black;
+     padding: 8px; 
+    }
+     table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        overflow: hidden;
+        }
+</style>
+
+    <div class="main" >
+        <div class="header" style="text-align: center;" >
+            <h2>{{setting[1]}}</h2>
+            <p style="padding-top: 5px;"> {{setting[6]}} </p>
+            <p>Phone : {{setting[2]}} <span>{% if setting[3]!="" %} Email : {{setting[3]}} {% endif %}</span> </p>
+            <p >{% if setting[4]!="" %} Website : {{setting[4]}} {% endif %}</p>
+            <p style="margin-bottom: 40px;">{% if setting[5]!="" %} Trade License / Company : {{setting[5]}} {% endif %}</p>
+        </div>
+        <div style="margin-bottom: 20px;margin-top: 20px;">
+            <h3 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;">Supplier Products Ledger</h3>
+            <div>
+                {% if supplier[0] ==0 %}
+                {% else %}
+                <p>Supplier Name : {{supplier[1]}}  </p> 
+                <p>Address : {{supplier[2]}} </p> 
+                <p>Contact No : {{supplier[3]}}</p>
+                {% endif %}
+            </div>
+   
+         <br/>
+            <h3 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;"> </h3>
+                <div>
+                    {% if fromd=="" and tod=="" %}
+                    <h3>{{name}}</h3>
+                    {% else %}
+                    <p>From Date : {{fromd}} </p> 
+                    <p>To Date : {{tod}}</p>
+                    {% endif %}  
+                </div>
+             <br/>
+            <table width="100%">
+               <tr>
+                   <th>Date</th>
+                   <th>Type</th>
+                   <th>Product Name</th>
+                   <th>Rate</th>
+                   <th>Quantity</th>
+                   <th>Discount</th>
+                   <th>Amount</th>
+               </tr>
+
+               {% set purchase = namespace(value=0) %}
+               {% set pqtn = namespace(value=0) %}
+               {% set preturn = namespace(value=0) %}
+               {% set preturnqtn = namespace(value=0) %}
+
+
+               {% for data in data %}
+ 
+               {% if data[1]=="Purchase Return" %}
+               {% set preturn.value=preturn.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set preturnqtn.value=preturnqtn.value + data[5]|float %}
+               {% endif %}                
+
+               {% if data[1]=="Purchase" %}
+               {% set purchase.value=purchase.value + data[4]|float * data[5]|float - data[7]|float %}
+                {% set pqtn.value=pqtn.value + data[5]|float %}
+               {% endif %} 
+
+
+                  <tr>
+                      <td>{{data[0]}}</td>
+                      <td>{{data[1]}}</td>
+                      <td>
+                        {{data[2]}}
+                       </td>
+                    <td>{{data[4]}} </td>
+                    <td>{{data[5]}} {{data[6]}}</td>
+                    <td>{{data[7]}}</td>
+                    <td>{{data[4]|float * data[5]|float - data[7]|float}}</td>
+                  </tr>
+                {% endfor %}
+
+                <tr>
+                    <td colspan="3"> </td>
+                    <td colspan="2"> </td>
+                    <td>Total Purchase Amount </td> 
+                    <td > {{purchase.value}} </td>
+                </tr>
+                <tr>
+                    <td colspan="3"> </td>
+                    <td colspan="2"> </td>
+                    <td>Total Purchase Return Amount </td> 
+                    <td > {{preturn.value}} </td>
+                </tr>
+            
+            </table>
+
+        </div>
+      
+
+        
+    </div>

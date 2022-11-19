@@ -1,0 +1,66 @@
+<style>
+    .main{
+        width: 100%;
+        border: 2px solid black;
+    }
+    h2,h3,h5{
+        color: rgb(43, 41, 32);
+        margin: 0;
+        font-weight: bold;
+    }
+    h5{
+        padding: 5px;
+    }
+    p{
+        margin: 0;
+    }
+
+    td,th {
+     border: 1px solid black;
+     text-align: center;
+     padding: 8px; }
+     table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+
+        }
+</style>
+
+    <div class="main" >
+        <div class="header" style="text-align: center;" >
+            <h2>{{setting[1]}}</h2>
+            <p style="padding-top: 5px;"> {{setting[6]}} </p>
+            <p>Phone : {{setting[2]}} <span>{% if setting[3]!="" %} Email : {{setting[3]}} {% endif %}</span> </p>
+            <p >{% if setting[4]!="" %} Website : {{setting[4]}} {% endif %}</p>
+            <p style="margin-bottom: 40px;">{% if setting[5]!="" %} Trade License / Company : {{setting[5]}} {% endif %}</p>
+        </div>
+        <div class="header" style="text-align: left;" >
+            <p><span>{% if data[6]!="" %} Bank Name : {{data[6]}} {% endif %}</span> </p>
+            <p><span>{% if data[7]!="" %} Check Number : {{data[7]}} {% endif %}</span> </p>
+            <p style="margin-bottom: 40px;">{% if data[8]!="" %} Trx ID : {{data[8]}} {% endif %}</p>
+        </div>
+        <div style="border: 3px solid black; margin-bottom: 5px;"></div>
+
+        <div style="margin-bottom: 100px;">
+            <h3 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;">Transactions</h3>
+             <br/>
+             <table width="100%">
+                <tr>
+                    <th>{{data[0]}}</th>
+                    <th>Payment Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                </tr>
+                <tr>
+                    <td>{{data[5]}}</td>
+                    <td>{{data[1]}}</td>
+                    <td>{{data[2]}} </td>
+                    <td>{{data[3]}}</td>
+                    <td>{{data[4]}}</td>
+                    </tr>
+             </table>
+        </div>
+      
+        
+    </div>

@@ -1,0 +1,92 @@
+{% block content %}
+<style>
+    .main{
+        width: 100%;
+        border: 2px solid black;
+        padding: 15px;
+    }
+    h2,h3,h5{
+        color: rgb(43, 41, 32);
+        margin: 0;
+        font-weight: bold;
+    }
+    h5{
+        padding: 5px;
+    }
+    p{
+        margin: 0;
+    }
+    td,th {
+     border: 1px solid black;
+     text-align: center;
+     padding: 5px;
+     background-color: rgb(248, 241, 229);
+     color: black;
+    }
+     table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        overflow: hidden;
+        }
+</style>
+
+    <div class="main" >
+        <div class="header" style="text-align: center;" >
+            <h2>{{setting[1]}}</h2>
+            <p style="padding-top: 5px;"> {{setting[6]}} </p>
+            <p>Phone : {{setting[2]}} <span>{% if setting[3]!="" %} Email : {{setting[3]}} {% endif %}</span> </p>
+            <p >{% if setting[4]!="" %} Website : {{setting[4]}} {% endif %}</p>
+            <p style="margin-bottom: 40px;">{% if setting[5]!="" %} Trade License / Company : {{setting[5]}} {% endif %}</p>
+        </div>
+        <div style="border: 3px solid black; margin-bottom: 5px;"></div>
+
+        <div style="margin-bottom: 100px;">
+            <h3 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;">Official Ledger</h3>
+                <div>
+                    {% if tod=="" and tod=="" %}
+                    {% else %}
+                    <p>From Date : {{fromd}} To Date : {{tod}}  </p> 
+                    {% endif %}
+                    <p>Account Name : {{account[1]}}  </p> 
+                    <p>Account Number : {{account[5]}} </p> 
+                    <p>Current Balance : {{account[4]}}</p>
+                </div>
+             <br/>
+             <table width="100%">
+                <tr>
+                    <th>Date</th>
+                    <th>Payment Type</th>
+                    <th>Description</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                    <th>Balance</th>
+                </tr>
+                {% set val = namespace(val=0) %}
+                
+                {% for ledger in ledger %}
+                <tr>
+                    <td>{{ledger[0]}}</td>
+                    <td>{{ledger[1]}}</td>
+                    <td>{{ledger[2]}}</td>
+
+                {% if ledger[1]=="Cash Payment" or ledger[1]=="Withdrew" %}
+                    <td>{{ledger[3]}}</td>
+                    {% set val.val=val.val - ledger[3]|float %}
+                {% else %}
+                    <td> </td>
+                {% endif %}
+                
+                {% if ledger[1]=="Cash Receive" or ledger[1]=="Deposit" %}
+                    <td>{{ledger[3]}}</td>
+                    {% set val.val=val.val + ledger[3]|float %}
+                {% else %}
+                    <td> </td>
+                {% endif %}
+                    <td> {{ val.val}}</td>
+                {% endfor %}
+   
+       
+             </table>
+        </div>
+    </div>
+    {% endblock %}
