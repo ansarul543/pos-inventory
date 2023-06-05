@@ -436,7 +436,7 @@ class Purchases(QWidget):
                 self.wholesale.setText(data[7])
                 self.showstocks.setText(str(data[8]))
                 self.vatpercent=data[9]
-                playsound('./audio/mixit.mp3') 
+                #playsound('./audio/mixit.mp3') 
             else:
                 self.pn.setText("")  
                 self.pid =""  

@@ -409,7 +409,7 @@ class Login(QWidget):
         self.licenseChecks()
         self.setWindowIcon(QtGui.QIcon("./images/carti.png"))
         self.setWindowTitle("Login Pos Software")
-        self.setFixedSize(703,370)
+        #self.setFixedSize(703,370)
         image = QPixmap("./images/carti.png")
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.now = QDate.currentDate()  
@@ -474,21 +474,13 @@ class Login(QWidget):
                 trialdate = cryptocode.decrypt(data[2], "mypassword")
                 trialexpiredate = cryptocode.decrypt(data[3], "mypassword")
                 if trialdate=="0" and trialexpiredate=="0":
-                    dateexpq = datetime.datetime.now() + datetime.timedelta(days=10)
-                    dateexp = cryptocode.encrypt(str(dateexpq),"mypassword")
+                    dateexpq = datetime.datetime.now() + datetime.timedelta(days=365)
+                    dateexp = cryptocode.encrypt(str(dateexpq),"mypassword") #'Zw==*8RzblVQf26PLtbk9BjO6XA==*68c1gOgYheZB4pIh1btHMg==*chPuX0U+OG93HllPeypGHw=='
                     conn = self.db
                     cur = conn.cursor()
                     result = cur.execute("UPDATE trial SET trs='1',trd=?,trdexpire=? WHERE id=?",(currentdate,dateexp,1,))
                     conn.commit()
                     if result:
-                        try:
-                            url = 'https://posback.bestsolution.me/trial/create'
-                            myobj = {'ip':ip_address,'joind':currentdateq,'expd':dateexpq}
-                            data = requests.post(url, data = myobj)
-                            x = data.json()
-                            print(x)
-                        except:
-                            print("Error")
                         self.hide()    
                         QMessageBox.information(None, ("Success"), ("Thank you for using our Trial version software"),QMessageBox.Ok) 
                         self.login = Login()

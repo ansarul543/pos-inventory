@@ -793,7 +793,7 @@ font: &quot;Arial&quot;;
                 <string notr="true">background-color:transparent;</string>
                </property>
                <property name="text">
-                <string>www.bestsolution.me   </string>
+                <string>Email : mdansarul543@gmail.com</string>
                </property>
               </widget>
              </item>
@@ -994,7 +994,7 @@ font: &quot;Arial&quot;;
      <x>0</x>
      <y>0</y>
      <width>1906</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="layoutDirection">

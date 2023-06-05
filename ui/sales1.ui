@@ -12,8 +12,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1157</width>
-    <height>761</height>
+    <width>927</width>
+    <height>643</height>
    </rect>
   </property>
   <property name="acceptDrops">
@@ -1163,9 +1163,6 @@ background-color: rgb(255, 235, 225);
      </item>
     </layout>
    </item>
-   <item row="4" column="0">
-    <widget class="QTextEdit" name="textEdit"/>
-   </item>
    <item row="4" column="1">
     <spacer name="horizontalSpacer">
      <property name="orientation">
@@ -1247,6 +1244,14 @@ color: rgb(255, 255, 255);</string>
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="4" column="0">
+    <widget class="QTextEdit" name="textEdit">
+     <property name="styleSheet">
+      <string notr="true">height:0;
+width:0;</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

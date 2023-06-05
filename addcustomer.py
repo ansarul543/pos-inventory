@@ -15,7 +15,7 @@ class AddCustomer(QDialog):
         self.setWindowTitle("New Customer")
         self.addCusBtn.clicked.connect(self.addCus)
         self.uid=uid  
-        self.tableWidget.setHorizontalHeaderLabels(["ID","Name","Email","Phone","Type","Website","Address","Party Code"])
+        self.tableWidget.setHorizontalHeaderLabels(["ID","Name","Email","Phone","Type","Website","Address","Party Code","Discount %"])
         self.conn = sqlite3.connect('./database/data.db')
         self.cur = self.conn.cursor()
         self.onlynumber = QDoubleValidator(0.00,99.99,10)
@@ -35,6 +35,7 @@ class AddCustomer(QDialog):
         website = self.website.text()
         address = self.address.toPlainText()
         partycode = self.partycode.text()
+        discount = self.discount.text()
         if(name==""):
             QMessageBox.warning(None, ("Name Required"), 
             ("Name Required"),
@@ -42,9 +43,13 @@ class AddCustomer(QDialog):
         elif(phone==""):
             QMessageBox.warning(None, ("Phone is required"), 
             ("Phone is required"),
-             QMessageBox.Ok)   
+             QMessageBox.Ok)  
+        elif(discount==""):
+            QMessageBox.warning(None, ("Discount is required"), 
+            ("Discount is required"),
+             QMessageBox.Ok)             
         else:    
-            result = self.cur.execute("UPDATE customer SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=? WHERE id=?",(name,email,phone,type,website,address,partycode,self.id,))
+            result = self.cur.execute("UPDATE customer SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=?,discount=? WHERE id=?",(name,email,phone,type,website,address,partycode,discount,self.id,))
             self.conn.commit()
             if(result):
                 self.loadData()
@@ -53,7 +58,8 @@ class AddCustomer(QDialog):
                 self.phone.setText("")
                 self.website.setText("")
                 self.address.setPlainText("")
-                self.partycode.setText("")                
+                self.partycode.setText("")         
+                self.discount.setText("0")          
                 QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
             else:
                 QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)    
@@ -81,6 +87,7 @@ class AddCustomer(QDialog):
                 self.phone.setText(data[3])
                 self.website.setText(data[5])
                 self.address.setPlainText(data[6])
+                self.discount.setText(data[8])
                 if(data[4]=="Retail"):
                     self.type.setChecked(True)    
                 if(data[4]=="Wholesale"):
@@ -121,6 +128,7 @@ class AddCustomer(QDialog):
         website = self.website.text()
         address = self.address.toPlainText()
         partycode = self.partycode.text()
+        discount = self.discount.text()
         if(name==""):
             QMessageBox.warning(None, ("Name Required"), 
             ("Name Required"),
@@ -129,10 +137,14 @@ class AddCustomer(QDialog):
             QMessageBox.warning(None, ("Phone is required"), 
             ("Phone is required"),
              QMessageBox.Ok)   
+        elif(discount==""):
+            QMessageBox.warning(None, ("Discount is required"), 
+            ("Discount is required"),
+             QMessageBox.Ok)              
         else:    
             due = self.due.text()
             if due=="" or due=="0":            
-                result = self.cur.execute("INSERT INTO customer(name,email,phone,type,website,address,partycode)VALUES(?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,))
+                result = self.cur.execute("INSERT INTO customer(name,email,phone,type,website,address,partycode,discount)VALUES(?,?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,discount,))
                 self.conn.commit()
                 if(result):
                     self.loadData()
@@ -143,6 +155,7 @@ class AddCustomer(QDialog):
                     self.address.setPlainText("")
                     self.partycode.setText("")
                     self.due.setText("0")
+                    self.discount.setText("0")
                     self.loadData()
                     QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok) 
                 else:
