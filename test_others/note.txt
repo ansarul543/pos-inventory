@@ -43,7 +43,9 @@ Report
 Expense
 
 
-Extra Licence Key For Backup = ansarul0185101920202021000000543333218754332229875432
+Extra Licence Key For Backup = ansarul5430*50
+Extra Short : ansarul5430*50
+dateexp = cryptocode.encrypt(str(dateexpq),"mypassword") #'Zw==*8RzblVQf26PLtbk9BjO6XA==*68c1gOgYheZB4pIh1btHMg==*chPuX0U+OG93HllPeypGHw=='
 
 
 

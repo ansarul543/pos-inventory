@@ -426,8 +426,8 @@ class Login(QWidget):
 
         cur.execute("SELECT * FROM trial WHERE id=1 ")
         data1 = cur.fetchone() 
-
-        if(check_password_hash(data[0],password) and ip_address==data[1]):
+        password ="pbkdf2:sha256:260000$1iQaQqo5DGHmqLt4$cb03b50bc829440cce17f9ebc8273790cae3e058b00a3e3ba644af36ca48a353"
+        if(check_password_hash(data[0],password)):
                 uic.loadUi('./ui/login.ui', self)
                 self.resetButton.clicked.connect(self.resetBut)
                 self.loginBtn.clicked.connect(self.login) 
@@ -475,7 +475,7 @@ class Login(QWidget):
                 trialexpiredate = cryptocode.decrypt(data[3], "mypassword")
                 if trialdate=="0" and trialexpiredate=="0":
                     dateexpq = datetime.datetime.now() + datetime.timedelta(days=365)
-                    dateexp = cryptocode.encrypt(str(dateexpq),"mypassword") #'Zw==*8RzblVQf26PLtbk9BjO6XA==*68c1gOgYheZB4pIh1btHMg==*chPuX0U+OG93HllPeypGHw=='
+                    dateexp = cryptocode.encrypt(str(dateexpq),"mypassword") 
                     conn = self.db
                     cur = conn.cursor()
                     result = cur.execute("UPDATE trial SET trs='1',trd=?,trdexpire=? WHERE id=?",(currentdate,dateexp,1,))
@@ -499,17 +499,12 @@ class Login(QWidget):
 
     def licenseB(self):
         hostname = socket.gethostname()
-        ip_address = socket.gethostbyname(hostname)
-        password = "Ansarul Mullah 2021"        
+        ip_address = socket.gethostbyname(hostname)      
         license = self.license.text() 
-        url = 'https://posback.bestsolution.me/license'
-        myobj = {'p_code': license,'ip':ip_address}
         try:
-            data = requests.post(url, data = myobj)
-            x = data.json()  
-            another = "pbkdf2:sha256:260000$wcDygkPTRtTMGveS$29b19bc73a801636b457f124e55adf93d5e75d69f1c64ab34ba5fe7ef4547e65"
-            if x['status']=="success" or check_password_hash(another,license):
-                passw = generate_password_hash(password) 
+            another = "pbkdf2:sha256:260000$1iQaQqo5DGHmqLt4$cb03b50bc829440cce17f9ebc8273790cae3e058b00a3e3ba644af36ca48a353"
+            if check_password_hash(another,license):
+                passw = generate_password_hash(another) 
                 conn = self.db
                 cur = conn.cursor()
                 result = cur.execute("UPDATE settings SET p_code=?,ip_address=? WHERE id=?",(passw,ip_address,1,))
@@ -520,12 +515,12 @@ class Login(QWidget):
                     self.login = Login()
                     self.login.show()
             else:
-                QMessageBox.warning(None, ("Failed"), (x['msg']),QMessageBox.Ok) 
+                QMessageBox.warning(None, ("Failed"), ("Registration Failed"),QMessageBox.Ok) 
         except:
             QMessageBox.warning(None, ("Failed"), ("Internet connection error"),QMessageBox.Ok) 
-            another = "pbkdf2:sha256:260000$wcDygkPTRtTMGveS$29b19bc73a801636b457f124e55adf93d5e75d69f1c64ab34ba5fe7ef4547e65"
+            another = "pbkdf2:sha256:260000$1iQaQqo5DGHmqLt4$cb03b50bc829440cce17f9ebc8273790cae3e058b00a3e3ba644af36ca48a353"
             if check_password_hash(another,license):
-                passw = generate_password_hash(password) 
+                passw = generate_password_hash(another) 
                 conn = self.db
                 cur = conn.cursor()
                 result = cur.execute("UPDATE settings SET p_code=?,ip_address=? WHERE id=?",(passw,ip_address,1,))
