@@ -389,6 +389,7 @@ class Sales(QWidget):
             self.discount_p.setText("0")  
             self.vatpercent="0"
             self.pv.setText("")
+            self.stockshow.setText("0")
             self.loadData()
 
 
@@ -466,6 +467,7 @@ class Sales(QWidget):
             self.pricep="0"
             self.wholesalep="0"
             self.vatpercent="0"
+            self.qtn.setText("0")
         else:
             result = self.cur.execute("SELECT * FROM products WHERE name LIKE ? OR id LIKE ? OR barcode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
             data = result.fetchone()
@@ -478,6 +480,7 @@ class Sales(QWidget):
                 self.pricep=data[6]
                 self.wholesalep=data[7]
                 self.vatpercent=data[9]
+                self.qtn.setText("1")
                 if data[15]!="Fixed":
                     self.sale.setReadOnly(False)
                 elif self.roles=="Admin" or self.roles=="Manager":
@@ -491,16 +494,22 @@ class Sales(QWidget):
                 if self.stype.currentText()=="Wholesale":
                     self.sale.setText(data[7])    
                     self.itemTotal()   
-                playsound('./audio/mixit.mp3')    
+                try:
+                    #playsound('./audio/mixit.mp3')
+                    print("Music ...")
+                except:
+                    print("Music Play Error")        
             else:
                 self.pn.setText("")  
                 self.pid =""  
                 self.unit.setText("")
-                self.stockshow.setText("")
+                self.stockshow.setText("0")
                 self.sale.setText("")
                 self.pricep="0"
                 self.wholesalep="0"       
                 self.vatpercent="0"    
+                self.qtn.setText("0")
+
 
     def searchCustomer(self):
         value = self.sv.text()
@@ -514,18 +523,25 @@ class Sales(QWidget):
                 self.mobile.setText(data[3])
                 self.phone = data[3]
                 self.previousdue.setText(str(bal))
+                self.discount.setText(data[8])
+                self.discountpercent.setChecked(True)
+                self.itemTotal()
             else:
                 self.cn.setText("")  
                 self.cid ="" 
                 self.previousdue.setText("0")
                 self.mobile.setText("")
                 self.phone=""
+                self.discountpercent.setChecked(False)
+                self.discount.setText("0")
         else:
             self.cn.setText("")  
             self.cid ="" 
             self.previousdue.setText("0")
             self.mobile.setText("")
             self.phone="" 
+            self.discountpercent.setChecked(False)
+            self.discount.setText("0")
 
 
 

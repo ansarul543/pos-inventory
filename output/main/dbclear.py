@@ -63,4 +63,7 @@ conn.commit()
 cur.execute("UPDATE `sqlite_sequence` SET `seq` = 0 WHERE `name` = 'pledger'")
 conn.commit()
 
+cur.execute("UPDATE `sqlite_sequence` SET `seq` = 0 WHERE `name` = 'loginhistory'")
+conn.commit()
+
 print("Ok")
