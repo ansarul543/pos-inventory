@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication,QDialog,QMessageBox,QFileDialog, QFileD
 import barcode 
 import qrcode
 from barcode import EAN13
-from barcode.writer import ImageWriter
+from barcode.writer import ImageWriter,ImageFont
 import sqlite3
 from PyQt5 import uic,QtGui,QtCore
 from PyQt5.QtGui import QPixmap,QPainter
@@ -12,6 +12,7 @@ from PyQt5.QtPrintSupport import QPrinter, QPrintDialog,\
     QPrintPreviewDialog
 from reportlab.graphics import renderPM
 
+font = ImageFont.load_default()
 
 
 class Barcode(QDialog):
@@ -70,8 +71,9 @@ class Barcode(QDialog):
                 self.barcode.setText(data[4])
                 self.pn=data[1]
                 number = str(data[4])
-                my_code = barcode.get('ean13', number, writer=ImageWriter())
+                my_code = barcode.get('ean13', number, writer=ImageWriter())   
                 my_code.save("./images/barcode") 
+
                 self.shop_name.setText(self.businessname)
                 self.proname.setText(data[1])
                 self.bars1.setPixmap(QPixmap("./images/barcode.png")) 
