@@ -71,7 +71,7 @@ class Purchases(QWidget):
         self.discount_p.textChanged.connect(self.itemTotal)
         self.buy.textChanged.connect(self.itemTotal)
         self.pid =""
-        self.sid =""
+        self.sid ="0"
         self.data=[]
         self.loadData()
         self.loadData2()
@@ -425,7 +425,7 @@ class Purchases(QWidget):
     def searchP(self):
         value = self.pv.text()
         if value !="":
-            result = self.cur.execute("SELECT * FROM products WHERE name LIKE ? OR id LIKE ? OR barcode LIKE ? OR itemcode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%","%"+value+"%",))
+            result = self.cur.execute("SELECT * FROM products WHERE id=? OR barcode=? OR name LIKE ? OR itemcode LIKE ? ",(value,value,"%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.pn.setText(str(data[1]))

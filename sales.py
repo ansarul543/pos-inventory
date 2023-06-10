@@ -63,7 +63,7 @@ class Sales(QWidget):
         self.qtn.textChanged.connect(self.itemTotal)
         self.discount_p.textChanged.connect(self.itemTotal)
         self.pid =""
-        self.cid =""
+        self.cid ="0"
         self.roles=role
         self.data=[]
         self.loadData()
@@ -107,7 +107,9 @@ class Sales(QWidget):
             self.loadData()
 
     def itemTotal(self):
-        stockshow = float(self.stockshow.text())
+        stockshow = 0
+        if(self.stockshow.text()!=""):
+            stockshow=float(self.stockshow.text())
         if self.sale.text()=="":
             sale = self.sale.text()
         elif self.qtn.text()=="":
@@ -469,7 +471,7 @@ class Sales(QWidget):
             self.vatpercent="0"
             self.qtn.setText("0")
         else:
-            result = self.cur.execute("SELECT * FROM products WHERE name LIKE ? OR id LIKE ? OR barcode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
+            result = self.cur.execute("SELECT * FROM products WHERE id=? OR barcode=? OR name LIKE ? ",(value,value,"%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.pn.setText(data[1])
@@ -481,12 +483,10 @@ class Sales(QWidget):
                 self.wholesalep=data[7]
                 self.vatpercent=data[9]
                 self.qtn.setText("1")
-                if data[15]!="Fixed":
-                    self.sale.setReadOnly(False)
-                elif self.roles=="Admin" or self.roles=="Manager":
-                    self.sale.setReadOnly(False)                    
-                else:
-                    self.sale.setReadOnly(True) 
+                if data[15]=="Fixed":
+                    self.sale.setReadOnly(True)
+                    self.discount_p.setReadOnly(True)
+                    self.discount.setReadOnly(True)
 
                 if self.stype.currentText()=="Retail":
                     self.sale.setText(data[6])

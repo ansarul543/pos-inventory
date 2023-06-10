@@ -185,6 +185,9 @@ background-color: rgb(85, 170, 0);</string>
                 <bold>true</bold>
                </font>
               </property>
+              <property name="text">
+               <string>0</string>
+              </property>
               <property name="placeholderText">
                <string>Search by Supplier ID Name or Party Code</string>
               </property>
@@ -888,6 +891,9 @@ color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
            <string>Add To Cart</string>
+          </property>
+          <property name="shortcut">
+           <string>Return</string>
           </property>
          </widget>
         </item>

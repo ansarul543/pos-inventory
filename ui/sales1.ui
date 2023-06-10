@@ -533,6 +533,9 @@ color: rgb(255, 255, 255);</string>
           <property name="text">
            <string>Add To Cart</string>
           </property>
+          <property name="shortcut">
+           <string>Return</string>
+          </property>
          </widget>
         </item>
        </layout>
@@ -968,6 +971,9 @@ border:1px solid black;</string>
              <font>
               <pointsize>8</pointsize>
              </font>
+            </property>
+            <property name="text">
+             <string>0</string>
             </property>
             <property name="placeholderText">
              <string>Search by Customer ID or Name or Party Code</string>

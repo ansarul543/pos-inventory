@@ -28,7 +28,7 @@ class Products(QWidget):
         self.role=role
         self.addb.clicked.connect(self.addData)
         self.loadData()
-        self.tableWidget.setHorizontalHeaderLabels(["ID","Item Code","Price Status","Product Name","Category","Unit","Purchase Rate","Wholesale","Sales Rate","Re Order Qtn"])
+        self.tableWidget.setHorizontalHeaderLabels(["ID","Item Code","Barcode","Price Status","Product Name","Category","Unit","Purchase Rate","Wholesale","Sales Rate","Re Order Qtn"])
         self.searchv.textChanged.connect(self.search)
         self.tableWidget.doubleClicked.connect(self.ddbclick)
         self.deleteb.clicked.connect(self.deleteData)
@@ -125,13 +125,13 @@ class Products(QWidget):
                 self.category.setCurrentText(data[3])
                 self.unit.setCurrentText(data[4])
                 self.reorder.setText(data[13])
-                self.itemcode.setText(data[14])
+                self.itemcode.setText(data[16])
                 self.status.setCurrentText(data[15])
                 self.id=data[0]
                 self.vat.setText(data[9])
 
     def loadData(self):
-        result = self.cur.execute("SELECT id,itemcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products ORDER BY id DESC")
+        result = self.cur.execute("SELECT id,itemcode,barcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products ORDER BY id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
@@ -140,7 +140,7 @@ class Products(QWidget):
                         column_number, QTableWidgetItem(str(data))) 
     def search(self):
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT id,itemcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products WHERE name LIKE ? OR model LIKE ? OR itemcode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        result = self.cur.execute("SELECT id,itemcode,barcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products WHERE name LIKE ? OR model LIKE ? OR itemcode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
