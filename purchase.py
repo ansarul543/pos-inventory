@@ -90,6 +90,11 @@ class Purchases(QWidget):
         self.peoductsData()
         self.combosupplier.currentIndexChanged.connect(self.suppDataChange)
         self.comboproduct.currentIndexChanged.connect(self.productDataChange)
+        self.buy.textChanged.connect(self.buySet)
+
+    def buySet(self):
+        val = rateHide(self.buy.text())
+        self.hrate.setText(val)
 
     def suppData(self):
         data = self.cur.execute("SELECT * FROM supplier")
@@ -492,6 +497,7 @@ class Purchases(QWidget):
                 self.wholesale.setText(data[7])
                 self.showstocks.setText(str(data[8]))
                 self.vatpercent=data[9]
+                self.hrate.setText(data[17])
                 #playsound('./audio/mixit.mp3') 
             else:
                 self.pn.setText("")  
@@ -501,6 +507,7 @@ class Purchases(QWidget):
                 self.sale.setText("0")
                 self.wholesale.setText("0")  
                 self.showstocks.setText(str(""))     
+                self.hrate.setText("")
                 self.vatpercent="0"         
         else:
             self.pn.setText("")  
@@ -509,7 +516,8 @@ class Purchases(QWidget):
             self.buy.setText("0")
             self.sale.setText("0")
             self.wholesale.setText("0")
-            self.showstocks.setText(str(""))       
+            self.showstocks.setText(str(""))  
+            self.hrate.setText("")     
             self.vatpercent="0"          
 
     def searchSupplier(self):
