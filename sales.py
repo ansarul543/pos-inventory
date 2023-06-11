@@ -62,6 +62,8 @@ class Sales(QWidget):
         self.discount.textChanged.connect(self.discountData)
         self.qtn.textChanged.connect(self.itemTotal)
         self.discount_p.textChanged.connect(self.itemTotal)
+        self.comboproduct.addItem("Products")
+        self.combocustomer.addItem("Customers")        
         self.pid =""
         self.cid ="0"
         self.roles=role
@@ -81,6 +83,52 @@ class Sales(QWidget):
         self.disd="0"
         self.ppercent.stateChanged.connect(self.itemTotal)
         self.discountpercent.stateChanged.connect(self.discountData)
+        self.peoductsData()
+        self.comboproduct.currentIndexChanged.connect(self.productDataChange)
+        self.cussData()
+        self.combocustomer.currentIndexChanged.connect(self.cussDataChange)
+
+    def cussData(self):
+        data = self.cur.execute("SELECT * FROM customer")
+        result = data.fetchall()
+        for i in result:
+            self.combocustomer.addItem(str(i[0])+" , "+i[1])
+    def cussDataChange(self):
+        d = self.combocustomer.currentText()
+        x = d.split(", ")
+        if(len(x)>1):
+            self.sv.setText(x[0])      
+            result = self.cur.execute("SELECT * FROM customer WHERE id=?",(x[0],))
+            data = result.fetchone()
+            if data:
+                self.cn.setText(data[1])
+                self.sid = data[0]
+                bal = balcus.bal(data[0])
+                self.previousdue.setText(str(bal))
+                self.caddress.setText(data[6])
+            else:
+                self.cn.setText("")  
+                self.cid =""  
+                self.previousdue.setText("0")
+                self.caddress.setText("")
+        else:
+           self.sv.setText("")      
+           self.searchCustomer()  
+
+    def peoductsData(self):
+        data = self.cur.execute("SELECT * FROM products")
+        result = data.fetchall()
+        for i in result:
+            self.comboproduct.addItem(str(i[0])+" , "+i[1])
+    def productDataChange(self):
+        da = self.comboproduct.currentText()  
+        y = da.split(", ")
+        if(len(y)>1):
+           self.pv.setText(y[0])  
+           self.searchP()    
+        else:
+            self.pv.setText("")   
+            self.searchP() 
 
     def smsapi(self):
         result = self.cur.execute("SELECT * FROM bulksetting WHERE id=? ",(1,))
@@ -226,7 +274,8 @@ class Sales(QWidget):
                     self.paid.setText("0")
                     self.labour.setText("0")
                     self.vat.setText("0")
-                    self.discount.setText("0")                                         
+                    self.discount.setText("0")  
+                    self.combocustomer.setCurrentText("Customers")                                       
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not saved try again"),QMessageBox.Ok)        
             else:
@@ -326,6 +375,7 @@ class Sales(QWidget):
                     self.labour.setText("0")
                     self.vat.setText("0")
                     self.discount.setText("0")   
+                    self.combocustomer.setCurrentText("Customers")  
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not saved try again"),QMessageBox.Ok)        
             else:
@@ -392,6 +442,7 @@ class Sales(QWidget):
             self.vatpercent="0"
             self.pv.setText("")
             self.stockshow.setText("0")
+            self.comboproduct.setCurrentText("Products")
             self.loadData()
 
 
@@ -524,6 +575,7 @@ class Sales(QWidget):
                 self.phone = data[3]
                 self.previousdue.setText(str(bal))
                 self.discount.setText(data[8])
+                self.caddress.setText(data[6])
                 self.discountpercent.setChecked(True)
                 self.itemTotal()
             else:
@@ -534,6 +586,7 @@ class Sales(QWidget):
                 self.phone=""
                 self.discountpercent.setChecked(False)
                 self.discount.setText("0")
+                self.caddress.setText("")
         else:
             self.cn.setText("")  
             self.cid ="" 
@@ -542,6 +595,7 @@ class Sales(QWidget):
             self.phone="" 
             self.discountpercent.setChecked(False)
             self.discount.setText("0")
+            self.caddress.setText("")
 
 
 

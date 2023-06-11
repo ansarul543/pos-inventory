@@ -11,6 +11,7 @@ from PyQt5.QtPrintSupport import QPrinter, QPrintDialog,\
 from jinja2 import Template 
 #sys.setrecursionlimit(5000)
 print(sys.getrecursionlimit())
+from hrate import rateHide
 from supplierbalance import SupplierBalance
 balsup = SupplierBalance()
 
@@ -99,7 +100,6 @@ class Purchases(QWidget):
         d = self.combosupplier.currentText()
         x = d.split(", ")
         if(len(x)>1):
-            print(x[0])  
             self.sv.setText(x[0])      
             result = self.cur.execute("SELECT * FROM supplier WHERE id=?",(x[0],))
             data = result.fetchone()
@@ -108,6 +108,7 @@ class Purchases(QWidget):
                 self.sid = data[0]
                 bal = balsup.bal(data[0])
                 self.previousdue.setText(str(bal))
+                self.saddress.setText(data[6])
             else:
                 self.sn.setText("")  
                 self.sid =""  
@@ -126,8 +127,7 @@ class Purchases(QWidget):
         da = self.comboproduct.currentText()  
         y = da.split(", ")
         if(len(y)>1):
-           self.pv.setText(y[0])
-           print(y[0])    
+           self.pv.setText(y[0])    
            self.searchP()    
         else:
             self.pv.setText("")   
@@ -227,7 +227,8 @@ class Purchases(QWidget):
                         buy2 = i["buy"]
                         sale = i["sale"]
                         wholesale=i["wholesale"]
-                        self.cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=? WHERE id=?",(buy2,sale,wholesale,qtn2,pid,))
+                        hrate=i["hrate"]
+                        self.cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=?,hrate=? WHERE id=?",(buy2,sale,wholesale,qtn2,hrate,pid,))
                         self.conn.commit()
                         query3 = ("Purchase",pid,purchaseid,sid,self.uid,i["buy"],i["qtn"],i["discount_p"],i["ppercent"],)
                         self.cur.execute("INSERT INTO pledger(type,pid,purcchase_id,sid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
@@ -304,7 +305,8 @@ class Purchases(QWidget):
                         buy2 = i["buy"]
                         sale = i["sale"]
                         wholesale=i["wholesale"]
-                        self.cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=? WHERE id=?",(buy2,sale,wholesale,qtn2,pid,))
+                        hrate=i["hrate"]
+                        self.cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=?,hrate=? WHERE id=?",(buy2,sale,wholesale,qtn2,hrate,pid,))
                         self.conn.commit()
                         query3 = ("Purchase",pid,purchaseid,sid,self.uid,i["buy"],i["qtn"],i["discount_p"],i["ppercent"],)
                         self.cur.execute("INSERT INTO pledger(type,pid,purcchase_id,sid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
@@ -376,6 +378,7 @@ class Purchases(QWidget):
         ppercent = self.selectPercentPro()
         wholesale = self.wholesale.text()
         discount_p = self.discount_p.text()
+        hrate = self.hrate.text()
         if(pid=="" and pn==""):
             QMessageBox.warning(None, ("Required"), 
             ("Product Name is Required"),
@@ -392,10 +395,10 @@ class Purchases(QWidget):
                 di = float(discount_p)
                 t = total*di/100
                 v = total-t
-                data = {"pid":pid,"pname":pn,"unit":unit,"qtn":qtn,"buy":buy,"sale":sale,"discount_p":t,"wholesale":wholesale,"ppercent":discount_p}  
+                data = {"pid":pid,"pname":pn,"unit":unit,"qtn":qtn,"buy":buy,"sale":sale,"discount_p":t,"wholesale":wholesale,"ppercent":discount_p,"hrate":hrate}  
                 self.data.append(data)
             else:
-                data = {"pid":pid,"pname":pn,"unit":unit,"qtn":qtn,"buy":buy,"sale":sale,"discount_p":discount_p,"wholesale":wholesale,"ppercent":"0"}  
+                data = {"pid":pid,"pname":pn,"unit":unit,"qtn":qtn,"buy":buy,"sale":sale,"discount_p":discount_p,"wholesale":wholesale,"ppercent":"0","hrate":hrate}  
                 self.data.append(data)                          
             self.pid=""
             self.pn.setText("")
@@ -408,6 +411,7 @@ class Purchases(QWidget):
             self.wholesale.setText("0")
             self.showstocks.setText(str(""))
             self.comboproduct.setCurrentText("Products")
+            self.hrate.setText("")
             self.loadData()
             self.loadData2()
 
@@ -518,14 +522,17 @@ class Purchases(QWidget):
                 self.sid = data[0]
                 bal = balsup.bal(data[0])
                 self.previousdue.setText(str(bal))
+                self.saddress.setText(data[6])
             else:
                 self.sn.setText("")  
                 self.sid =""  
                 self.previousdue.setText("0")
+                self.saddress.setText("")
         else:
             self.sn.setText("")  
             self.sid =""  
-            self.previousdue.setText("0")        
+            self.previousdue.setText("0")   
+            self.saddress.setText("")     
 
 
 

@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap,QDoubleValidator
 from productledger import ProductLedger
 import sqlite3
 import uuid
+from hrate import rateHide
 
 class Products(QWidget):
     def __init__(self,uid='',role='',parent=None):
@@ -35,6 +36,11 @@ class Products(QWidget):
         self.updateb.clicked.connect(self.updateData)
         self.ledgerb.clicked.connect(self.ledgerpro)
         self.id=""
+        self.buy.textChanged.connect(self.buySet)
+
+    def buySet(self):
+        val = rateHide(self.buy.text())
+        self.hrate.setText(val)
 
     def ledgerpro(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
@@ -60,6 +66,7 @@ class Products(QWidget):
         reorder = self.reorder.text()
         status = self.status.currentText()
         itemcode = self.itemcode.text()
+        hrate = self.hrate.text()
         if(name==""):
             QMessageBox.warning(None, ("Name Required"), 
             ("Name Required"),
@@ -85,7 +92,7 @@ class Products(QWidget):
             ("Reorder not be empty please fill atleat 0"),
              QMessageBox.Ok)               
         else:    
-            result = self.cur.execute("UPDATE products SET name=?,model=?,category=?,unit=?,buyrate=?,salerate=?,wholesale=?,tax=?,discount=?,reorder=?,status=?,itemcode=? WHERE id=?",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,reorder,status,itemcode,self.id,))
+            result = self.cur.execute("UPDATE products SET name=?,model=?,category=?,unit=?,buyrate=?,salerate=?,wholesale=?,tax=?,discount=?,reorder=?,status=?,itemcode=?,hrate=? WHERE id=?",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,reorder,status,itemcode,hrate,self.id,))
             self.conn.commit()
             if(result):
                 self.loadData()
@@ -129,6 +136,7 @@ class Products(QWidget):
                 self.status.setCurrentText(data[15])
                 self.id=data[0]
                 self.vat.setText(data[9])
+                self.hrate.setText(data[17])
 
     def loadData(self):
         result = self.cur.execute("SELECT id,itemcode,barcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products ORDER BY id DESC")
@@ -173,6 +181,7 @@ class Products(QWidget):
         reorder = self.reorder.text()
         status = self.status.currentText()
         itemcode = self.itemcode.text()
+        hrate = self.hrate.text()
         
         if(name==""):
             QMessageBox.warning(None, ("Name Required"), 
@@ -200,7 +209,7 @@ class Products(QWidget):
              QMessageBox.Ok)                         
         else:    
             if pqtn=="0" or pqtn=="":
-                result = self.cur.execute("INSERT INTO products(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,barcode,reorder,status,itemcode)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,self.barcode,reorder,status,itemcode,))
+                result = self.cur.execute("INSERT INTO products(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,barcode,reorder,status,itemcode,hrate)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,self.barcode,reorder,status,itemcode,hrate,))
                 self.conn.commit()
                 if(result):
                     self.category.setCurrentText("Select Category")
@@ -217,6 +226,7 @@ class Products(QWidget):
                     self.reorder.setText("0")
                     self.itemcode.setText("")
                     self.vat.setText("0")
+                    self.hrate.setText("")
                     self.status.setCurrentText("Fixed")
                     self.barcode = str(uuid.uuid4().int)[:12]
                     QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok) 
@@ -237,6 +247,7 @@ class Products(QWidget):
                     self.categoryData()
                     self.unitData()
                     self.name.setText("")
+                    self.hrate.setText("")
                     self.model.setText("")
                     self.buy.setText("0")
                     self.sales.setText("0")
