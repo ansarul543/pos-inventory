@@ -70,6 +70,8 @@ class Purchases(QWidget):
         self.qtn.textChanged.connect(self.itemTotal)
         self.discount_p.textChanged.connect(self.itemTotal)
         self.buy.textChanged.connect(self.itemTotal)
+        self.comboproduct.addItem("Products")
+        self.combosupplier.addItem("Suppliers")
         self.pid =""
         self.sid ="0"
         self.data=[]
@@ -83,6 +85,53 @@ class Purchases(QWidget):
         self.vatpercent="0"
         self.saveonlyb.clicked.connect(self.saveonly)
         self.ppercent.stateChanged.connect(self.itemTotal)
+        self.suppData()
+        self.peoductsData()
+        self.combosupplier.currentIndexChanged.connect(self.suppDataChange)
+        self.comboproduct.currentIndexChanged.connect(self.productDataChange)
+
+    def suppData(self):
+        data = self.cur.execute("SELECT * FROM supplier")
+        result = data.fetchall()
+        for i in result:
+            self.combosupplier.addItem(str(i[0])+" , "+i[1])
+    def suppDataChange(self):
+        d = self.combosupplier.currentText()
+        x = d.split(", ")
+        if(len(x)>1):
+            print(x[0])  
+            self.sv.setText(x[0])      
+            result = self.cur.execute("SELECT * FROM supplier WHERE id=?",(x[0],))
+            data = result.fetchone()
+            if data:
+                self.sn.setText(data[1])
+                self.sid = data[0]
+                bal = balsup.bal(data[0])
+                self.previousdue.setText(str(bal))
+            else:
+                self.sn.setText("")  
+                self.sid =""  
+                self.previousdue.setText("0")
+        else:
+           self.sv.setText("")      
+           self.searchSupplier()               
+
+
+    def peoductsData(self):
+        data = self.cur.execute("SELECT * FROM products")
+        result = data.fetchall()
+        for i in result:
+            self.comboproduct.addItem(str(i[0])+" , "+i[1])
+    def productDataChange(self):
+        da = self.comboproduct.currentText()  
+        y = da.split(", ")
+        if(len(y)>1):
+           self.pv.setText(y[0])
+           print(y[0])    
+           self.searchP()    
+        else:
+            self.pv.setText("")   
+            self.searchP() 
 
 
     def itemTotal(self):
@@ -196,6 +245,7 @@ class Purchases(QWidget):
                     self.discount.setText("0")      
                     self.wholesale.setText("0")     
                     self.vatpercent="0"    
+                    self.combosupplier.setCurrentText("Suppliers")
     
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not saved try again"),QMessageBox.Ok)        
@@ -288,6 +338,7 @@ class Purchases(QWidget):
                     self.vat.setText("0")
                     self.discount.setText("0")      
                     self.wholesale.setText("0")  
+                    self.combosupplier.setCurrentText("Suppliers")
                     self.vatpercent="0" 
               
                 else:
@@ -356,6 +407,7 @@ class Purchases(QWidget):
             self.pv.setText("")
             self.wholesale.setText("0")
             self.showstocks.setText(str(""))
+            self.comboproduct.setCurrentText("Products")
             self.loadData()
             self.loadData2()
 

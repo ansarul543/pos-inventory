@@ -122,7 +122,7 @@ background-color: rgb(85, 170, 0);</string>
                </font>
               </property>
               <property name="text">
-               <string>Supplier Type    </string>
+               <string>Supplier Type  </string>
               </property>
              </widget>
             </item>
@@ -192,6 +192,9 @@ background-color: rgb(85, 170, 0);</string>
                <string>Search by Supplier ID Name or Party Code</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="combosupplier"/>
             </item>
            </layout>
           </item>
@@ -493,6 +496,13 @@ width:0;</string>
            <widget class="QLineEdit" name="pv">
             <property name="placeholderText">
              <string> Search by Product ID or Name</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QComboBox" name="comboproduct">
+            <property name="currentText">
+             <string/>
             </property>
            </widget>
           </item>
