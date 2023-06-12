@@ -253,6 +253,9 @@ color: rgb(255, 255, 255);</string>
           <property name="placeholderText">
            <string>Customer name or invoice no</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>

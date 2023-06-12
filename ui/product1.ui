@@ -46,7 +46,11 @@
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="name"/>
+         <widget class="QLineEdit" name="name">
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -77,6 +81,9 @@
           <property name="text">
            <string>0</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -99,6 +106,9 @@
          <widget class="QLineEdit" name="itemcode">
           <property name="text">
            <string/>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -153,6 +163,9 @@
           <property name="text">
            <string/>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -180,6 +193,9 @@
           </property>
           <property name="text">
            <string>0</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -234,6 +250,9 @@
           <property name="text">
            <string>0</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -287,6 +306,9 @@
           <property name="text">
            <string>0</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -309,6 +331,9 @@
          <widget class="QLineEdit" name="buy">
           <property name="text">
            <string>0</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -344,6 +369,9 @@
           </property>
           <property name="text">
            <string>0</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -420,6 +448,9 @@ background-color: rgb(249, 255, 240);
       <widget class="QLineEdit" name="searchv">
        <property name="placeholderText">
         <string>Search by Product Name or Item Code or Model Number</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

@@ -50,7 +50,11 @@ background-color: rgb(252, 242, 231);
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="cat_name"/>
+           <widget class="QLineEdit" name="cat_name">
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -150,6 +154,9 @@ color: rgb(255, 255, 255);</string>
     <widget class="QLineEdit" name="searchv">
      <property name="placeholderText">
       <string>Search by name</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

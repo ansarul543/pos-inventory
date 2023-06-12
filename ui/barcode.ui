@@ -66,6 +66,9 @@ color:white;</string>
             <property name="placeholderText">
              <string> Search By   Product id or name or Barcode Here</string>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>

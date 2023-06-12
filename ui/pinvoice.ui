@@ -56,6 +56,9 @@
         <property name="placeholderText">
          <string>supplier name or invoice no</string>
         </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="3" colspan="2">

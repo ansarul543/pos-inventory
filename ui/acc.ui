@@ -49,6 +49,9 @@
             <pointsize>10</pointsize>
            </font>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -73,6 +76,9 @@
            <font>
             <pointsize>10</pointsize>
            </font>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -135,6 +141,9 @@
           </property>
           <property name="readOnly">
            <bool>false</bool>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

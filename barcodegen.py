@@ -62,7 +62,7 @@ class Barcode(QDialog):
             self.showDefaultbars()
    
         else:
-            result = self.cur.execute("SELECT id,name,unit,category,barcode,salerate FROM products WHERE name LIKE ? OR id LIKE ? OR barcode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
+            result = self.cur.execute("SELECT id,name,unit,category,barcode,salerate FROM products WHERE id=? OR barcode=? OR name LIKE ? ",(value,value,"%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.pname.setText(data[1])   

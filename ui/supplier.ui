@@ -48,7 +48,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="name"/>
+           <widget class="QLineEdit" name="name">
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -70,6 +74,9 @@
            <widget class="QLineEdit" name="due">
             <property name="text">
              <string>0</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -95,6 +102,9 @@
              <font>
               <pointsize>10</pointsize>
              </font>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -137,6 +147,9 @@
            <widget class="QLineEdit" name="email">
             <property name="text">
              <string/>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -216,6 +229,9 @@
             <property name="text">
              <string/>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -238,6 +254,9 @@
            <widget class="QLineEdit" name="website">
             <property name="text">
              <string/>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -334,6 +353,9 @@ color: rgb(255, 255, 255);</string>
       <widget class="QLineEdit" name="searchb">
        <property name="placeholderText">
         <string>Search by  name ID or Party Code</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

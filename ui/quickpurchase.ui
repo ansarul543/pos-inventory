@@ -59,6 +59,9 @@
             <property name="placeholderText">
              <string>Search by Supplier ID Name or Party Code</string>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -227,6 +230,9 @@
           <property name="text">
            <string>0</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -254,6 +260,9 @@
           </property>
           <property name="text">
            <string>0</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

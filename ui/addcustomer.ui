@@ -52,7 +52,11 @@ background-color: rgb(252, 242, 231);
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="website"/>
+         <widget class="QLineEdit" name="website">
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -74,6 +78,9 @@ background-color: rgb(252, 242, 231);
          <widget class="QLineEdit" name="due">
           <property name="text">
            <string>0</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -149,7 +156,11 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="name"/>
+         <widget class="QLineEdit" name="name">
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -211,7 +222,11 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QLineEdit" name="partycode"/>
+         <widget class="QLineEdit" name="partycode">
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -230,7 +245,11 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="email"/>
+         <widget class="QLineEdit" name="email">
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -249,7 +268,11 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="phone"/>
+         <widget class="QLineEdit" name="phone">
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -286,6 +309,9 @@ color: rgb(255, 255, 255);</string>
           <property name="text">
            <string>0</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -299,6 +325,9 @@ color: rgb(255, 255, 255);</string>
       <widget class="QLineEdit" name="searchv">
        <property name="placeholderText">
         <string>Search By Name Party Code or ID</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -323,6 +352,7 @@ color: rgb(255, 255, 255);</string>
       <font>
        <family>MS Shell Dlg 2</family>
        <pointsize>10</pointsize>
+       <weight>50</weight>
        <italic>false</italic>
        <bold>false</bold>
       </font>

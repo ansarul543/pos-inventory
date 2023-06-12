@@ -482,6 +482,7 @@ class Login(QWidget):
                     conn.commit()
                     if result:
                         self.hide()    
+                        conn.close()
                         QMessageBox.information(None, ("Success"), ("Thank you for using our Trial version software"),QMessageBox.Ok) 
                         self.login = Login()
                         self.login.show()
@@ -511,6 +512,7 @@ class Login(QWidget):
                 conn.commit()
                 if result:
                     self.hide()
+                    conn.close()
                     QMessageBox.information(None, ("Success"), ("Thank you for purchasing our software \nYour License code successfully verified"),QMessageBox.Ok) 
                     self.login = Login()
                     self.login.show()
@@ -527,6 +529,7 @@ class Login(QWidget):
                 conn.commit()
                 if result:
                     self.hide()
+                    conn.close()
                     QMessageBox.information(None, ("Success"), ("Thank you for purchasing our software \nYour License code successfully verified"),QMessageBox.Ok) 
                     self.login = Login()
                     self.login.show()                
@@ -551,6 +554,7 @@ class Login(QWidget):
                 datetime2 = date   
                 result = cur.execute("INSERT into loginhistory(uid,login,logout) VALUES(?,?,?)",(data[0],datetime,datetime2))
                 conn.commit()
+                conn.close()
                 self.hide()
                 self.mainW = MainWin(data[0],result.lastrowid,data[5])
                 self.mainW.show()

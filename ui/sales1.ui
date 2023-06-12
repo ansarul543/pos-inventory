@@ -181,6 +181,9 @@ background-color: rgb(255, 255, 255);
             <property name="placeholderText">
              <string> Search by Product ID or Name</string>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -365,6 +368,9 @@ background-color: rgb(255, 255, 255);
             <property name="text">
              <string>0</string>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -445,6 +451,9 @@ background-color: rgb(255, 255, 255);
             </property>
             <property name="readOnly">
              <bool>false</bool>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -705,13 +714,16 @@ border:1px solid black;</string>
              <enum>Qt::RightToLeft</enum>
             </property>
             <property name="styleSheet">
-             <string notr="true">background-color: rgb(255, 235, 225);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>0</string>
             </property>
             <property name="readOnly">
              <bool>true</bool>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -748,6 +760,9 @@ border:1px solid black;</string>
             </property>
             <property name="readOnly">
              <bool>false</bool>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -792,6 +807,9 @@ border:1px solid black;</string>
             <property name="readOnly">
              <bool>false</bool>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -827,6 +845,9 @@ border:1px solid black;</string>
             </property>
             <property name="readOnly">
              <bool>false</bool>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -990,6 +1011,9 @@ border:1px solid black;</string>
             </property>
             <property name="placeholderText">
              <string>Search by Customer ID or Name or Party Code</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

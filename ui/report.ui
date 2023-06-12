@@ -50,6 +50,9 @@
          <property name="placeholderText">
           <string> Supplier ID or Name </string>
          </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="0" column="0">
@@ -165,6 +168,9 @@
          <property name="placeholderText">
           <string> Customer ID or Name </string>
          </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="0" column="0">
@@ -261,6 +267,9 @@
            </property>
            <property name="placeholderText">
             <string> Search By Supplier Name</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -429,6 +438,9 @@
            <property name="placeholderText">
             <string> Search By Customer Name</string>
            </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -595,6 +607,9 @@
            </property>
            <property name="placeholderText">
             <string> Search By Official Account Name</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

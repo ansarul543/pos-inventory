@@ -54,6 +54,9 @@ background-color: rgb(252, 242, 231);
             <property name="placeholderText">
              <string>Search Product name or id , Customer id or Name</string>
             </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>

@@ -52,6 +52,9 @@
           <property name="placeholderText">
            <string>Search by Supplier ID or Name</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
         <item>
@@ -197,6 +200,9 @@
           </property>
           <property name="placeholderText">
            <string> Search by Product ID or Name</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -391,6 +397,9 @@ color: rgb(255, 255, 255);</string>
           <property name="text">
            <string>0</string>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -501,6 +510,9 @@ color: rgb(255, 255, 255);</string>
           <property name="readOnly">
            <bool>false</bool>
           </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -571,6 +583,9 @@ color: rgb(255, 255, 255);</string>
            </property>
            <property name="placeholderText">
             <string>Search Product name </string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
