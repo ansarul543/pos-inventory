@@ -19,7 +19,8 @@ class BulkSetting(QDialog):
         self.updateb.clicked.connect(self.updateData)
 
     def loadData(self):
-        result = self.cur.execute("SELECT * FROM bulksetting WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM bulksetting WHERE id=? ",(1,))
         if(result):
             data = result.fetchone()
             self.api.setText(data[1])
@@ -51,7 +52,7 @@ class BulkSetting(QDialog):
         invoice = self.invoice.toPlainText()
         cash = self.cash.toPlainText()
         due = self.due.toPlainText()
-
+        cur = self.conn.cursor()
         if(self.uid==""):
             QMessageBox.warning(None, ("Required"), 
             ("Login expired please login again after close window"),
@@ -62,7 +63,7 @@ class BulkSetting(QDialog):
              QMessageBox.Ok)  
         else:    
             try:
-                result = self.cur.execute("UPDATE bulksetting SET api=?,username=?,password=?,number=?,auto=?,invoice=?,cash=?,due=? WHERE id=?",(api,username,password,number,auto,invoice,cash,due,1,))
+                result = cur.execute("UPDATE bulksetting SET api=?,username=?,password=?,number=?,auto=?,invoice=?,cash=?,due=? WHERE id=?",(api,username,password,number,auto,invoice,cash,due,1,))
                 self.conn.commit()
                 if(result):
                     self.loadData()
@@ -70,7 +71,8 @@ class BulkSetting(QDialog):
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)       
             except:
-                QMessageBox.warning(None, ("Failed"), ("Data not updated Database Error "),QMessageBox.Ok)                                
+                QMessageBox.warning(None, ("Failed"), ("Data not updated Database Error "),QMessageBox.Ok)  
+        cur.close()                                      
 
 
 

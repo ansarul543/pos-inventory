@@ -37,25 +37,29 @@ class ProductDamage(QDialog):
         if sv =="":
             a =0
         else:    
-            result = self.cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ?",("%"+sv+"%","%"+sv+"%",))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ?",("%"+sv+"%","%"+sv+"%",))
             self.tableWidget.setRowCount(0)
             for row_number, row_data in enumerate(result):
                 self.tableWidget.insertRow(row_number)
                 for column_number, data in enumerate(row_data):
                     self.tableWidget.setItem(row_number,column_number, QTableWidgetItem(str(data))) 
+            cur.close()        
 
     def loadData(self):
         self.name.setText("")
         self.stock.setText("")
         self.id = ""
-        self.quantity =""        
-        result = self.cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id ORDER BY damage.id DESC")
+        self.quantity =""  
+        cur = self.conn.cursor()      
+        result = cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id ORDER BY damage.id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()        
 
     def loadDataDate(self):    
         sv = self.searchv_2.text()
@@ -66,26 +70,29 @@ class ProductDamage(QDialog):
         fromd = date
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
-        tod = date+" "+currenttime    
+        tod = date+" "+currenttime   
+        cur = self.conn.cursor() 
         if sv=="":
-            result = self.cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id WHERE damage.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id WHERE damage.date BETWEEN ? AND ?",(fromd,tod,))
             self.tableWidget.setRowCount(0)
             for row_number, row_data in enumerate(result):
                 self.tableWidget.insertRow(row_number)
                 for column_number, data in enumerate(row_data):
                     self.tableWidget.setItem(row_number,column_number, QTableWidgetItem(str(data))) 
         else:
-            result = self.cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ? and damage.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT damage.id,products.name,products.id,damage.qtn,damage.des,strftime('%d/%m/%Y',damage.date),users.name FROM damage INNER JOIN products ON damage.pid=products.id LEFT JOIN users ON damage.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ? and damage.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%",fromd,tod,))
             self.tableWidget.setRowCount(0)
             for row_number, row_data in enumerate(result):
                 self.tableWidget.insertRow(row_number)
                 for column_number, data in enumerate(row_data):
-                    self.tableWidget.setItem(row_number,column_number, QTableWidgetItem(str(data)))                         
+                    self.tableWidget.setItem(row_number,column_number, QTableWidgetItem(str(data)))    
+        cur.close()                                 
 
     def addS(self):
         name = self.name.text()
         id = self.id
         des = self.des.text()
+        cur = self.conn.cursor()
         if(name=="" and id==""):
             QMessageBox.warning(None, ("Name Required"), 
             ("Product Name is Required"),
@@ -96,16 +103,16 @@ class ProductDamage(QDialog):
              QMessageBox.Ok)                  
         else:    
             qtn = float(self.qtn.text())
-            self.cur.execute("INSERT INTO damage(pid,qtn,des,uid)VALUES(?,?,?,?)",(self.id,qtn,des,self.uid,))
+            cur.execute("INSERT INTO damage(pid,qtn,des,uid)VALUES(?,?,?,?)",(self.id,qtn,des,self.uid,))
             self.conn.commit()
             quantity = float(self.quantity)
             qtns = quantity-qtn
-            result = self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtns,id))
+            result = cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtns,id))
             self.conn.commit()
             if(result):
                 damageid = result.lastrowid
                 query3 = ("Damage",self.id,damageid,self.uid,self.sale,str(qtn),)
-                self.cur.execute("INSERT INTO pledger(type,pid,damage_id,uid,price,qtn)VALUES(?,?,?,?,?,?)",query3)
+                cur.execute("INSERT INTO pledger(type,pid,damage_id,uid,price,qtn)VALUES(?,?,?,?,?,?)",query3)
                 self.conn.commit()     
                 QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok) 
             else:
@@ -114,10 +121,12 @@ class ProductDamage(QDialog):
             self.qtn.setText("0")
             self.des.setText("")
             self.sale="0"
+            cur.close()
 
 
     def search(self):
-        sv = self.searchv.text()    
+        sv = self.searchv.text()  
+        cur = self.conn.cursor()  
         if sv=="":
             self.name.setText("")
             self.stock.setText("")
@@ -125,7 +134,7 @@ class ProductDamage(QDialog):
             self.quantity =""
             self.sale="0"
         else:    
-            result = self.cur.execute("SELECT id,name,unit,qtn,buyrate FROM products WHERE id LIKE ? OR name LIKE ? ",("%"+sv+"%","%"+sv+"%",))
+            result = cur.execute("SELECT id,name,unit,qtn,buyrate FROM products WHERE id LIKE ? OR name LIKE ? ",("%"+sv+"%","%"+sv+"%",))
             data = result.fetchone()
             if data:
                 self.name.setText(str(data[1]))
@@ -139,6 +148,7 @@ class ProductDamage(QDialog):
                 self.id = ""  
                 self.quantity =""
                 self.sale="0"
+        cur.close()        
         
     def deleteData(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
@@ -146,8 +156,9 @@ class ProductDamage(QDialog):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(2)
         pid = NewInd.data()  
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(3)
-        qtn = NewInd.data()             
-        res = self.cur.execute("SELECT id,qtn FROM products WHERE id=?",(pid,))
+        qtn = NewInd.data()  
+        cur = self.conn.cursor()           
+        res = cur.execute("SELECT id,qtn FROM products WHERE id=?",(pid,))
         data = res.fetchone()              
         reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected row"),QMessageBox.Yes,QMessageBox.No) 
         if(reply == QMessageBox.Yes):          
@@ -155,19 +166,20 @@ class ProductDamage(QDialog):
                     QMessageBox.warning(None, ("Warning"), ("Please select any row"),QMessageBox.Ok)
                 else:   
                     qtn = float(qtn) 
-                    self.cur.execute("DELETE FROM damage WHERE id=?",(id,))
+                    cur.execute("DELETE FROM damage WHERE id=?",(id,))
                     self.conn.commit()
                     quantity = float(data[1])
                     qtn = quantity+qtn
-                    result = self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn,pid))
+                    result = cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn,pid))
                     self.conn.commit()
                     if(result):
-                        self.cur.execute("DELETE FROM pledger WHERE damage_id=?",(id,))
+                        cur.execute("DELETE FROM pledger WHERE damage_id=?",(id,))
                         self.conn.commit()                          
                         QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
                     else:
                         QMessageBox.information(None, ("Failed"), ("Data not deleted "),QMessageBox.Ok)     
                     self.loadData()
+                cur.close()    
 
     def select(self):
         if(self.minus.isChecked()):

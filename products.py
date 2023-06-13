@@ -67,6 +67,7 @@ class Products(QWidget):
         status = self.status.currentText()
         itemcode = self.itemcode.text()
         hrate = self.hrate.text()
+        cur = self.conn.cursor()
         if(name==""):
             QMessageBox.warning(None, ("Name Required"), 
             ("Name Required"),
@@ -92,7 +93,7 @@ class Products(QWidget):
             ("Reorder not be empty please fill atleat 0"),
              QMessageBox.Ok)               
         else:    
-            result = self.cur.execute("UPDATE products SET name=?,model=?,category=?,unit=?,buyrate=?,salerate=?,wholesale=?,tax=?,discount=?,reorder=?,status=?,itemcode=?,hrate=? WHERE id=?",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,reorder,status,itemcode,hrate,self.id,))
+            result = cur.execute("UPDATE products SET name=?,model=?,category=?,unit=?,buyrate=?,salerate=?,wholesale=?,tax=?,discount=?,reorder=?,status=?,itemcode=?,hrate=? WHERE id=?",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,reorder,status,itemcode,hrate,self.id,))
             self.conn.commit()
             if(result):
                 self.loadData()
@@ -111,7 +112,8 @@ class Products(QWidget):
                 self.vat.setText("0")
                 self.id=""
                 self.itemcode.setText("")
-                self.status.setCurrentText("Fixed")                
+                self.status.setCurrentText("Fixed") 
+                cur.close()               
                 QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
             else:
                 QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)                
@@ -121,7 +123,8 @@ class Products(QWidget):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         if(id):
-            result = self.cur.execute("SELECT * FROM products WHERE id=? ",(id,))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM products WHERE id=? ",(id,))
             if(result):
                 data = result.fetchone()
                 self.name.setText(data[1])
@@ -137,24 +140,30 @@ class Products(QWidget):
                 self.id=data[0]
                 self.vat.setText(data[9])
                 self.hrate.setText(data[17])
+                cur.close()
 
     def loadData(self):
-        result = self.cur.execute("SELECT id,itemcode,barcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products ORDER BY id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,itemcode,barcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products ORDER BY id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()
+
     def search(self):
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT id,itemcode,barcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products WHERE name LIKE ? OR model LIKE ? OR itemcode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,itemcode,barcode,status,name,category,unit,buyrate,wholesale,salerate,reorder,strftime('%d/%m/%Y',date) FROM products WHERE name LIKE ? OR model LIKE ? OR itemcode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()        
 
     def categoryData(self):
         data = self.cur.execute("SELECT * FROM category")
@@ -182,7 +191,7 @@ class Products(QWidget):
         status = self.status.currentText()
         itemcode = self.itemcode.text()
         hrate = self.hrate.text()
-        
+        cur = self.conn.cursor()
         if(name==""):
             QMessageBox.warning(None, ("Name Required"), 
             ("Name Required"),
@@ -209,7 +218,7 @@ class Products(QWidget):
              QMessageBox.Ok)                         
         else:    
             if pqtn=="0" or pqtn=="":
-                result = self.cur.execute("INSERT INTO products(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,barcode,reorder,status,itemcode,hrate)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,self.barcode,reorder,status,itemcode,hrate,))
+                result = cur.execute("INSERT INTO products(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,barcode,reorder,status,itemcode,hrate)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,self.barcode,reorder,status,itemcode,hrate,))
                 self.conn.commit()
                 if(result):
                     self.category.setCurrentText("Select Category")
@@ -229,13 +238,14 @@ class Products(QWidget):
                     self.hrate.setText("")
                     self.status.setCurrentText("Fixed")
                     self.barcode = str(uuid.uuid4().int)[:12]
+                    cur.close()
                     QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok) 
             
                 else:
                     self.loadData()
                     QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Ok)    
             else:
-                result = self.cur.execute("INSERT INTO products(name,model,category,unit,buyrate,salerate,wholesale,qtn,tax,discount,barcode,reorder,status,itemcode)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(name,model,category,unit,buyrate,salerate,wholesale,pqtn,tax,discount,self.barcode,reorder,status,itemcode,))
+                result = cur.execute("INSERT INTO products(name,model,category,unit,buyrate,salerate,wholesale,qtn,tax,discount,barcode,reorder,status,itemcode)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(name,model,category,unit,buyrate,salerate,wholesale,pqtn,tax,discount,self.barcode,reorder,status,itemcode,))
                 self.conn.commit()
                 if(result):
                     id = result.lastrowid
@@ -258,6 +268,7 @@ class Products(QWidget):
                     self.vat.setText("0")
                     self.status.setCurrentText("Fixed")
                     self.barcode = str(uuid.uuid4().int)[:12]
+                    cur.close()
                     QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok) 
             
                 else:
@@ -269,34 +280,37 @@ class Products(QWidget):
         id = NewInd.data()
         reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected row"),QMessageBox.Yes,QMessageBox.No) 
         if(reply == QMessageBox.Yes):
-            purch = self.cur.execute("SELECT * FROM purchase WHERE pid=?",(id,))
+            cur = self.conn.cursor()
+            purch = cur.execute("SELECT * FROM purchase WHERE pid=?",(id,))
             pdata = purch.fetchall()
-            sal = self.cur.execute("SELECT * FROM sales WHERE pid=?",(id,))
+            sal = cur.execute("SELECT * FROM sales WHERE pid=?",(id,))
             sdata = sal.fetchall()
             if len(pdata)>0 or len(sdata)>0:
                 QMessageBox.warning(None, ("Warning"), ("You can't delete this product its purchase or sales history len geater then 0"),QMessageBox.Ok)
             else:    
-                result = self.cur.execute("DELETE FROM products WHERE id=?",(id,))
+                result = cur.execute("DELETE FROM products WHERE id=?",(id,))
                 self.conn.commit()        
                 if(result):
-                    self.cur.execute("DELETE FROM purchase WHERE pid=?",(id,))
+                    cur.execute("DELETE FROM purchase WHERE pid=?",(id,))
                     self.conn.commit()  
-                    self.cur.execute("DELETE FROM sales WHERE pid=?",(id,))
+                    cur.execute("DELETE FROM sales WHERE pid=?",(id,))
                     self.conn.commit()                 
  
-                    self.cur.execute("DELETE FROM proadjust WHERE pid=?",(id,))
+                    cur.execute("DELETE FROM proadjust WHERE pid=?",(id,))
                     self.conn.commit()   
 
-                    self.cur.execute("DELETE FROM damage WHERE pid=?",(id,))
+                    cur.execute("DELETE FROM damage WHERE pid=?",(id,))
                     self.conn.commit()   
 
-                    self.cur.execute("DELETE FROM pledger WHERE pid=?",(id,))
+                    cur.execute("DELETE FROM pledger WHERE pid=?",(id,))
                     self.conn.commit()  
 
                     self.category.setCurrentText("Select Category")
                     self.unit.setCurrentText("Select Unit")
+                    
                     self.loadData()
                     QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
                     self.loadData()
+            cur.close()        
 
 

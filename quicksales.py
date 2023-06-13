@@ -43,6 +43,7 @@ class QuickSales(QDialog):
         paid = self.paid.text()  
         total = self.total.text()  
         previousdue = self.previousdue.text()
+        cur = self.conn.cursor()
         if cid=="" and self.cn.text()=="":
             QMessageBox.warning(None, ("Required"), 
             ("Customer Name is Required"),
@@ -57,11 +58,11 @@ class QuickSales(QDialog):
              QMessageBox.Ok)   
         else:
             query = (cid,total,invoice,paid,dateandtime,self.uid,previousdue,)
-            result = self.cur.execute("INSERT INTO sinvoice(cid,total,invoice,paid,date,uid,previus_due)VALUES(?,?,?,?,?,?,?)",query)
+            result = cur.execute("INSERT INTO sinvoice(cid,total,invoice,paid,date,uid,previus_due)VALUES(?,?,?,?,?,?,?)",query)
             self.conn.commit()     
             if result:
                 id = result.lastrowid
-                self.cur.execute("INSERT INTO sss(type,invoice_id,cid,date,uid)VALUES(?,?,?,?,?)",("SALES",id,cid,dateandtime,self.uid,))
+                cur.execute("INSERT INTO sss(type,invoice_id,cid,date,uid)VALUES(?,?,?,?,?)",("SALES",id,cid,dateandtime,self.uid,))
                 self.conn.commit()
                 QMessageBox.information(None, ("Successful"), ("Data added and saved successfully"),QMessageBox.Ok) 
                 self.total.setText("0")
@@ -71,13 +72,15 @@ class QuickSales(QDialog):
                 self.previousdue.setText("")
                 self.invoice.setText(str(random.randint(10000, 100000)))
             else:
-                QMessageBox.warning(None, ("Failed"), ("Data not saved"),QMessageBox.Ok)                    
+                QMessageBox.warning(None, ("Failed"), ("Data not saved"),QMessageBox.Ok) 
+        cur.close()                           
                                       
 
     def searchCustomer(self):
         value = self.sv.text()
+        cur = self.conn.cursor()
         if value!="":
-            result = self.cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
+            result = cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.cn.setText(data[1])
@@ -92,6 +95,7 @@ class QuickSales(QDialog):
             self.cn.setText("")  
             self.cid ="" 
             self.previousdue.setText("0")
+        cur.close()    
 
 
 

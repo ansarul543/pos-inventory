@@ -23,7 +23,8 @@ class Extramessage(QDialog):
 
     def searchCustomer(self):
         value = self.sv.text()
-        result = self.cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? ",("%"+value+"%","%"+value+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? ",("%"+value+"%","%"+value+"%",))
         data = result.fetchone()
         if data:
             self.cn.setText(data[1])
@@ -31,9 +32,11 @@ class Extramessage(QDialog):
         else:
             self.cn.setText("")  
             self.mobile.setText("") 
+        cur.close()    
 
     def smsapi(self):
-        result = self.cur.execute("SELECT * FROM bulksetting WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM bulksetting WHERE id=? ",(1,))
         if(result):
             data = result.fetchone()
             api = data[1]
@@ -41,6 +44,7 @@ class Extramessage(QDialog):
             password = data[3]
             number = data[4]
             url = f"{api}?username={username}&password={password}&number={number}&message=Test"
+            cur.close()
             return url
   
 
@@ -59,8 +63,9 @@ class Extramessage(QDialog):
         msg = self.msg.toPlainText()
         url = self.smsapi()
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        cur = self.conn.cursor()
         if checkcustomer=="all":
-            result = self.cur.execute("SELECT id,name,phone FROM customer")
+            result = cur.execute("SELECT id,name,phone FROM customer")
             data = result.fetchall()
             if msg=="" :
                 QMessageBox.warning(None, ("Required"), ("Message Text is required"),QMessageBox.Ok)  
@@ -86,7 +91,8 @@ class Extramessage(QDialog):
                     response = requests.request("POST", url, headers=headers, data = payload)   
                     QMessageBox.information(None, ("Successful"), ("Message sent to customer successfully"),QMessageBox.Ok)      
                 except:
-                    QMessageBox.warning(None, ("Failed"), ("Something Went wrong "),QMessageBox.Ok)                                
+                    QMessageBox.warning(None, ("Failed"), ("Something Went wrong "),QMessageBox.Ok)         
+        cur.close()                                   
 
 
 

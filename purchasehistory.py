@@ -54,20 +54,21 @@ class PurchaseHistory(QDialog):
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime   
+        cur = self.conn.cursor()
         if sv=="":  
-            result = self.cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  WHERE purchase.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  WHERE purchase.date BETWEEN ? AND ?",(fromd,tod,))
             data = result.fetchall()
             total =0
             for index,i in enumerate(data):
                 price = float(i[4])
                 qtn = float(i[5])
                 total += price*qtn-float(i[7])
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()            
             with open("html/purchaseitem.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,total=total,name=""))
         else:
-            result = self.cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR supplier.name LIKE ? OR supplier.id LIKE ? OR supplier.partycode LIKE ? OR products.itemcode LIKE ? and purchase.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR supplier.name LIKE ? OR supplier.id LIKE ? OR supplier.partycode LIKE ? OR products.itemcode LIKE ? and purchase.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
             data = result.fetchall()
             total =0
             for index,i in enumerate(data):
@@ -78,42 +79,47 @@ class PurchaseHistory(QDialog):
             setting = s.fetchone()            
             with open("html/purchaseitem.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,total=total,name=""))
-
+        cur.close()
 
     def loadData(self):
-        result = self.cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  ORDER BY purchase.id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  ORDER BY purchase.id DESC")
         data = result.fetchall()
         total =0
         for index,i in enumerate(data):
             price = float(i[4])
             qtn = float(i[5])
             total += price*qtn-float(i[7])
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()            
         with open("html/purchaseitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,total=total,name="All Purchase Record"))
- 
+        cur.close()
+
     def loadDataEmpy(self):
         data=[]
         total =0
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()            
         with open("html/purchaseitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,total=total,name=""))
- 
+        cur.close()
+
     def search(self):
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR supplier.name LIKE ? OR supplier.id LIKE ? OR products.itemcode LIKE ? OR supplier.partycode LIKE ? ORDER BY purchase.id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR supplier.name LIKE ? OR supplier.id LIKE ? OR products.itemcode LIKE ? OR supplier.partycode LIKE ? ORDER BY purchase.id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         data = result.fetchall()
         total =0
         for index,i in enumerate(data):
             price = float(i[4])
             qtn = float(i[5])
             total += price*qtn-float(i[7])
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()            
         with open("html/purchaseitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,total=total,name="All Purchase Search Record "+sv))
-
+        cur.close()
 
 

@@ -44,9 +44,11 @@ class Supplier(QDialog):
             ("Phone is required"),
              QMessageBox.Ok)   
         else:    
-            result = self.cur.execute("UPDATE supplier SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=? WHERE id=?",(name,email,phone,type,website,address,partycode,self.id,))
+            cur = self.conn.cursor()
+            result = cur.execute("UPDATE supplier SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=? WHERE id=?",(name,email,phone,type,website,address,partycode,self.id,))
             self.conn.commit()
             if(result):
+                cur.close()
                 self.name.setText("")
                 self.email.setText("")
                 self.phone.setText("")
@@ -84,9 +86,11 @@ class Supplier(QDialog):
         else:    
             due = self.due.text()
             if due=="" or due=="0":
-                result = self.cur.execute("INSERT INTO supplier(name,email,phone,type,website,address,partycode)VALUES(?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,))
+                cur = self.conn.cursor()
+                result = cur.execute("INSERT INTO supplier(name,email,phone,type,website,address,partycode)VALUES(?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,))
                 self.conn.commit()
                 if(result):
+                    cur.close()
                     self.name.setText("")
                     self.email.setText("")
                     self.phone.setText("")
@@ -101,17 +105,19 @@ class Supplier(QDialog):
                     QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Ok)  
             else:
                 invoice = str(random.randint(10000, 100000))
-                result = self.cur.execute("INSERT INTO supplier(name,email,phone,type,website,address,partycode)VALUES(?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,))
+                cur = self.conn.cursor()
+                result = cur.execute("INSERT INTO supplier(name,email,phone,type,website,address,partycode)VALUES(?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,))
                 self.conn.commit()
                 if(result):
                     sid = result.lastrowid
                     query = (sid,due,invoice,self.uid,)
-                    result2 = self.cur.execute("INSERT INTO pinvoice(sid,total,invoice,uid)VALUES(?,?,?,?)",query)
+                    result2 = cur.execute("INSERT INTO pinvoice(sid,total,invoice,uid)VALUES(?,?,?,?)",query)
                     if (result2):
                         self.conn.commit()
                         id = result2.lastrowid
-                        self.cur.execute("INSERT INTO ppp(type,invoice_id,sid,uid)VALUES(?,?,?,?)",("Previous Due",id,sid,self.uid,))
+                        cur.execute("INSERT INTO ppp(type,invoice_id,sid,uid)VALUES(?,?,?,?)",("Previous Due",id,sid,self.uid,))
                         self.conn.commit() 
+                        cur.close()
                     
                     self.name.setText("")
                     self.email.setText("")
@@ -130,7 +136,8 @@ class Supplier(QDialog):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         if(id):
-            result = self.cur.execute("SELECT * FROM supplier WHERE id=?",(id,))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM supplier WHERE id=?",(id,))
             data = result.fetchone()
             self.id=data[0]
             self.name.setText(data[1])
@@ -145,6 +152,7 @@ class Supplier(QDialog):
             if(data[4]=="Distributor"):
                 self.dis.setChecked(True)
             self.partycode.setText(data[7])    
+            cur.close()
                         
     def editButton(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
@@ -159,6 +167,7 @@ class Supplier(QDialog):
     def deleteData(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
+        cur = self.conn.cursor()
         if id==None:
             QMessageBox.warning(None, ("Warning"), ("Please select any row"),QMessageBox.Ok)
         elif id=="0":
@@ -166,39 +175,44 @@ class Supplier(QDialog):
         else:          
             reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected row.\n you can lose your all supplier related data from other table"),QMessageBox.Yes,QMessageBox.No) 
             if(reply == QMessageBox.Yes):      
-                result = self.cur.execute("DELETE FROM supplier WHERE id=?",(id,))
+                result = cur.execute("DELETE FROM supplier WHERE id=?",(id,))
                 self.conn.commit()
                 if(result):
-                    self.cur.execute("DELETE FROM pinvoice WHERE sid=?",(id,))
+                    cur.execute("DELETE FROM pinvoice WHERE sid=?",(id,))
                     self.conn.commit()                       
-                    self.cur.execute("DELETE FROM purchase WHERE sid=?",(id,))
+                    cur.execute("DELETE FROM purchase WHERE sid=?",(id,))
                     self.conn.commit()               
-                    self.cur.execute("DELETE FROM cash WHERE type='Supplier' AND accid=?",(id,))
+                    cur.execute("DELETE FROM cash WHERE type='Supplier' AND accid=?",(id,))
                     self.conn.commit() 
-                    self.cur.execute("DELETE FROM ppp WHERE sid=?",(id,))
+                    cur.execute("DELETE FROM ppp WHERE sid=?",(id,))
                     self.conn.commit()    
-                    self.cur.execute("DELETE FROM pledger WHERE sid=?",(id,))
-                    self.conn.commit()                                                         
+                    cur.execute("DELETE FROM pledger WHERE sid=?",(id,))
+                    self.conn.commit()   
+                    cur.close()                                                      
                     QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
                     self.loadData()
 
 
     def loadData(self):
-        result = self.cur.execute("SELECT * FROM supplier ORDER BY id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM supplier ORDER BY id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
-                        column_number, QTableWidgetItem(str(data)))        
+                        column_number, QTableWidgetItem(str(data)))      
+        cur.close()          
 
     def search(self):
         sv = self.searchb.text()    
-        result = self.cur.execute("SELECT * FROM supplier WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM supplier WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()        
 

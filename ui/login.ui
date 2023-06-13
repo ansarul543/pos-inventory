@@ -195,10 +195,19 @@ QPushButton: pressed {
       <height>31</height>
      </rect>
     </property>
+    <property name="cursor">
+     <cursorShape>IBeamCursor</cursorShape>
+    </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);
 padding-left:10px;
 color:black;</string>
+    </property>
+    <property name="cursorPosition">
+     <number>0</number>
+    </property>
+    <property name="dragEnabled">
+     <bool>false</bool>
     </property>
     <property name="placeholderText">
      <string>Enter Username</string>
@@ -277,6 +286,9 @@ QPushButton: pressed {
     </property>
    </widget>
    <widget class="QLineEdit" name="password">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>410</x>
@@ -285,6 +297,9 @@ QPushButton: pressed {
       <height>31</height>
      </rect>
     </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);
 padding-left:10px;
@@ -292,6 +307,9 @@ color:black;</string>
     </property>
     <property name="echoMode">
      <enum>QLineEdit::Password</enum>
+    </property>
+    <property name="cursorPosition">
+     <number>0</number>
     </property>
     <property name="placeholderText">
      <string>Enter Password</string>

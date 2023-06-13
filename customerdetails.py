@@ -56,7 +56,8 @@ class CustomerDetails(QDialog):
             self.textEdit_2.print_(printer) 
 
     def viewDate2(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()     
         time = QTime.currentTime()
         currenttime = '23:58:00'
@@ -74,15 +75,17 @@ class CustomerDetails(QDialog):
                INNER JOIN products ON pledger.pid=products.id
                WHERE pledger.cid=? and pledger.date BETWEEN ? AND ? 
                """
-        result = self.cur.execute(query,(self.id,fromd,tod,))
+        result = cur.execute(query,(self.id,fromd,tod,))
         data = result.fetchall()
-        cu = self.cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(self.id,))
+        cu = cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(self.id,))
         customer = cu.fetchone()
         with open("html/customeritemhistory.html") as file:
             self.textEdit_2.setText(Template(file.read()).render(fromd=fromd,customer=customer,tod=date,setting=setting,data=data,name=""))
+        cur.close()
 
-    def loadData2(self):        
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+    def loadData2(self):   
+        cur = self.conn.cursor()     
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         query = """
                SELECT strftime('%d/%m/%Y',pledger.date),pledger.type,products.name,customer.name,
@@ -92,13 +95,14 @@ class CustomerDetails(QDialog):
                INNER JOIN products ON pledger.pid=products.id
                WHERE pledger.cid=?
                """
-        result = self.cur.execute(query,(self.id,))
+        result = cur.execute(query,(self.id,))
         data = result.fetchall()
-        cu = self.cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(self.id,))
+        cu = cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(self.id,))
         customer = cu.fetchone()
         with open("html/customeritemhistory.html") as file:
             self.textEdit_2.setText(Template(file.read()).render(fromd="",tod="",customer=customer,setting=setting,data=data,name=""))
-    
+        cur.close()
+
     def messageB(self):
         self.das = DueMessage(self.id)
         self.das.show() 
@@ -127,6 +131,7 @@ class CustomerDetails(QDialog):
             ("Data not selected yet Please select data "),
              QMessageBox.Cancel) 
         else:
+            cur = self.conn.cursor()
             lqr = """
             SELECT sss.id,sss.type,strftime('%d/%m/%Y',sss.date),sinvoice.invoice,
             sinvoice.total,sinvoice.paid,
@@ -137,18 +142,18 @@ class CustomerDetails(QDialog):
             LEFT JOIN sreturn ON sss.return_id=sreturn.id 
             WHERE sss.cid=?
             """
-            led = self.cur.execute(lqr,(id,))
+            led = cur.execute(lqr,(id,))
             ledger = led.fetchall()
 
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
 
-            cu = self.cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(id,))
+            cu = cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(id,))
             customer = cu.fetchone()
             
             with open("html/customerledger.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd='',tod='',ledger=ledger,customer=customer,setting=setting))
-
+            cur.close()
 
     def dateLoad(self):
         id= self.id    
@@ -166,6 +171,7 @@ class CustomerDetails(QDialog):
             ("Data not selected yet Please select data "),
              QMessageBox.Cancel) 
         else:
+            cur = self.conn.cursor()
             lqr = """
             SELECT sss.id,sss.type,strftime('%d/%m/%Y',sss.date),sinvoice.invoice,
             sinvoice.total,sinvoice.paid,
@@ -176,18 +182,18 @@ class CustomerDetails(QDialog):
             LEFT JOIN sreturn ON sss.return_id=sreturn.id 
             WHERE sss.cid=? and sss.date BETWEEN ? AND ?
             """
-            led = self.cur.execute(lqr,(id,fromd,tod,))
+            led = cur.execute(lqr,(id,fromd,tod,))
             ledger = led.fetchall()
 
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
 
-            cu = self.cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(id,))
+            cu = cur.execute("SELECT id,name,address,phone FROM customer WHERE id=? ",(id,))
             customer = cu.fetchone()
             
             with open("html/customerledger.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,ledger=ledger,customer=customer,setting=setting))
-             
+            cur.close() 
 
 
        

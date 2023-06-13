@@ -48,21 +48,22 @@ class SalesDetails(QDialog):
 
     def searchV(self):
         sv = self.sv.text()
+        cur = self.conn.cursor()
         if sv!="":
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
             sql="""SELECT sinvoice.id,sinvoice.invoice,sinvoice.paytype,sinvoice.paid,
             sinvoice.total,strftime('%d/%m/%Y',sinvoice.date) as date, customer.name FROM sinvoice 
             INNER JOIN customer ON sinvoice.cid=customer.id WHERE sinvoice.invoice LIKE ? OR customer.name LIKE ?"""
-            da = self.cur.execute(sql,("%"+sv+"%","%"+sv+"%",))
+            da = cur.execute(sql,("%"+sv+"%","%"+sv+"%",))
             result = da.fetchall()
             sql="""SELECT cash.id,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,customer.name
              FROM cash INNER JOIN customer ON cash.cid=customer.id WHERE cash.type='Customer' and customer.name LIKE ?"""
-            cash = self.cur.execute(sql,("%"+sv+"%",))
+            cash = cur.execute(sql,("%"+sv+"%",))
             cashs = cash.fetchall()
             sql="""SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,strftime('%d/%m/%Y',sreturn.date) as date,paid ,customer.name
             FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id WHERE customer.name LIKE ?"""
-            retur = self.cur.execute(sql,("%"+sv+"%",))
+            retur = cur.execute(sql,("%"+sv+"%",))
             repro = retur.fetchall()
             total =0
             paid = 0
@@ -81,24 +82,26 @@ class SalesDetails(QDialog):
                 debit += float(i[1])*float(i[2])-float(i[3])
             with open("html/salesDetails.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=tod,setting=setting,invoice=result,cash=cashs,repro=repro,total=total,paid=paid,returnamount=returnamount,debit=debit))
+        cur.close()
 
     def detailsLoad(self):
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            cur = self.conn.cursor()
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
 
             sql="""SELECT sinvoice.id,sinvoice.invoice,sinvoice.paytype,sinvoice.paid,
             sinvoice.total,strftime('%d/%m/%Y',sinvoice.date) as date, customer.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id"""
-            da = self.cur.execute(sql)
+            da = cur.execute(sql)
             result = da.fetchall()
 
             sql="""SELECT cash.id,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,customer.name
              FROM cash INNER JOIN customer ON cash.cid=customer.id WHERE cash.type='Customer'"""
-            cash = self.cur.execute(sql)
+            cash = cur.execute(sql)
             cashs = cash.fetchall()
             
             sql="""SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,strftime('%d/%m/%Y',sreturn.date) as date,paid ,customer.name
             FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id"""
-            retur = self.cur.execute(sql)
+            retur = cur.execute(sql)
             repro = retur.fetchall()
             total =0
             paid = 0
@@ -118,6 +121,7 @@ class SalesDetails(QDialog):
 
             with open("html/salesDetails.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=tod,setting=setting,invoice=result,cash=cashs,repro=repro,total=total,paid=paid,returnamount=returnamount,debit=debit))
+            cur.close()
 
     def dateLoad(self):
         sv = self.sv.text()
@@ -129,22 +133,22 @@ class SalesDetails(QDialog):
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime                  
-        
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         if sv=="":
             sql="""SELECT sinvoice.id,sinvoice.invoice,sinvoice.paytype,sinvoice.paid,
             sinvoice.total,strftime('%d/%m/%Y',sinvoice.date) as date, customer.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id
              WHERE sinvoice.date BETWEEN ? AND ? """
-            da = self.cur.execute(sql,(fromd,tod,))
+            da = cur.execute(sql,(fromd,tod,))
             result = da.fetchall()
             sql="""SELECT cash.type,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,customer.name
              FROM cash INNER JOIN customer ON cash.cid=customer.id WHERE cash.type='Customer' and cash.date BETWEEN ? AND ? """
-            cas = self.cur.execute(sql,(fromd,tod,))
+            cas = cur.execute(sql,(fromd,tod,))
             cash = cas.fetchall()
             sql="""SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,strftime('%d/%m/%Y',sreturn.date) as date,paid ,customer.name
             FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id WHERE sreturn.date BETWEEN ? AND ? """
-            retur = self.cur.execute(sql,(fromd,tod,))
+            retur = cur.execute(sql,(fromd,tod,))
             repro = retur.fetchall()
             total =0
             paid = 0
@@ -165,15 +169,15 @@ class SalesDetails(QDialog):
             sql="""SELECT sinvoice.id,sinvoice.invoice,sinvoice.paytype,sinvoice.paid,
             sinvoice.total,strftime('%d/%m/%Y',sinvoice.date) as date, customer.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id
              WHERE sinvoice.invoice LIKE ? OR customer.name LIKE ? and sinvoice.date BETWEEN ? AND ? """
-            da = self.cur.execute(sql,("%"+sv+"%","%"+sv+"%",fromd,tod,))
+            da = cur.execute(sql,("%"+sv+"%","%"+sv+"%",fromd,tod,))
             result = da.fetchall()
             sql="""SELECT cash.type,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,customer.name
              FROM cash INNER JOIN customer ON cash.cid=customer.id WHERE cash.type='Customer' AND customer.name LIKE ? and cash.date BETWEEN ? AND ? """
-            cas = self.cur.execute(sql,("%"+sv+"%",fromd,tod,))
+            cas = cur.execute(sql,("%"+sv+"%",fromd,tod,))
             cash = cas.fetchall()
             sql="""SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,strftime('%d/%m/%Y',sreturn.date) as date,paid ,customer.name
             FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id WHERE customer.name LIKE ? and sreturn.date BETWEEN ? AND ? """
-            retur = self.cur.execute(sql,("%"+sv+"%",fromd,tod,))
+            retur = cur.execute(sql,("%"+sv+"%",fromd,tod,))
             repro = retur.fetchall()
             total =0
             paid = 0
@@ -190,7 +194,7 @@ class SalesDetails(QDialog):
                 debit += float(i[1])*float(i[2])-float(i[3])
             with open("html/salesDetails.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,invoice=result,cash=cash,repro=repro,total=total,paid=paid,returnamount=returnamount,debit=debit))
-                              
+        cur.close()                      
 
 
        

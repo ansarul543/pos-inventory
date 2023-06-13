@@ -35,10 +35,12 @@ class Barcode(QDialog):
         self.loadData()
         
     def loadData(self):
-        result = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         if(result):
             data = result.fetchone()
             self.businessname=data[1]
+            cur.close()
         else:
             self.close()    
 
@@ -62,7 +64,8 @@ class Barcode(QDialog):
             self.showDefaultbars()
    
         else:
-            result = self.cur.execute("SELECT id,name,unit,category,barcode,salerate FROM products WHERE id=? OR barcode=? OR name LIKE ? ",(value,value,"%"+value+"%",))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT id,name,unit,category,barcode,salerate FROM products WHERE id=? OR barcode=? OR name LIKE ? ",(value,value,"%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.pname.setText(data[1])   
@@ -227,7 +230,7 @@ class Barcode(QDialog):
                 self.bars34.setPixmap(QPixmap("./images/barcode.png")) 
                 self.price_30.setText("TK."+f'{float(data[5]):.2f}'+"(Inc.VAT)")
 
-
+                cur.close()
                     
             else:
                 self.pname.setText("")   

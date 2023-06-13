@@ -22,7 +22,8 @@ class CashMessage(QDialog):
         
       
     def smsapi(self):
-        result = self.cur.execute("SELECT customer.name,customer.phone FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.id=? ",(self.cashid,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT customer.name,customer.phone FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.id=? ",(self.cashid,))
         if result:
             data=result.fetchone()
             self.phones=data[1]        
@@ -35,15 +36,18 @@ class CashMessage(QDialog):
             number = data[4]
             self.msg=data[7]
             url = f"{api}?username={username}&password={password}&number={number}&message=Test"
+            cur.close()
             return url
    
     def load(self):
-        result = self.cur.execute("SELECT customer.name,customer.phone,cash.amount,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.id=? ",(self.cashid,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT customer.name,customer.phone,cash.amount,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.id=? ",(self.cashid,))
         if result:
             data=result.fetchone()
             self.phones=data[1]
             ms = f"Hi {data[0]} \nYour payment amount {data[2]} Taka \n{self.msg}"
             self.messages.setText(ms)   
+        cur.close()
 
     def sentData(self):
         msg = self.messages.toPlainText()

@@ -24,7 +24,8 @@ class Category(QDialog):
         self.updateb.clicked.connect(self.updateData)
 
     def updateData(self):
-        name = self.cat_name.text()       
+        name = self.cat_name.text()  
+        cur = self.conn.cursor()     
         if(name==""):
             QMessageBox.warning(None, ("Required"), 
             ("Name Required"),
@@ -34,7 +35,7 @@ class Category(QDialog):
             ("Data not selected yet Please select data before update"),
              QMessageBox.Cancel)   
         else:    
-            result = self.cur.execute("UPDATE category SET cat_name=? WHERE id=?",(name,self.id,))
+            result = cur.execute("UPDATE category SET cat_name=? WHERE id=?",(name,self.id,))
             self.conn.commit()
             if(result):
                 self.loadData()
@@ -43,33 +44,41 @@ class Category(QDialog):
                 QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
             else:
                 QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel) 
+            cur.close()    
 
     def loadData(self):
-        result = self.cur.execute("SELECT * FROM category ORDER BY id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM category ORDER BY id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()
+
     def ddbclick(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
+        cur = self.conn.cursor()
         if(id):
-            result = self.cur.execute("SELECT * FROM category WHERE id=? ",(id,))
+            result = cur.execute("SELECT * FROM category WHERE id=? ",(id,))
             if(result):
                 data = result.fetchone()
                 self.cat_name.setText(data[1])
                 self.id=data[0]
+            cur.close()
+
 
     def addS(self):
         name = self.cat_name.text()
+        cur = self.conn.cursor()
         if(name==""):
             QMessageBox.warning(None, ("Name Required"), 
             ("Name Required"),
              QMessageBox.Cancel) 
         else:    
-            result = self.cur.execute("INSERT INTO category(cat_name)VALUES(?)",(name,))
+            result = cur.execute("INSERT INTO category(cat_name)VALUES(?)",(name,))
             self.conn.commit()
             if(result):
                 self.cat_name.setText("")
@@ -77,27 +86,35 @@ class Category(QDialog):
                 self.loadData()           
             else:
                 self.loadData()
-                QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)    
+                QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)   
+            cur.close()
+
    
     def search(self):
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT * FROM category WHERE cat_name LIKE ? ORDER BY id DESC",("%"+sv+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM category WHERE cat_name LIKE ? ORDER BY id DESC",("%"+sv+"%",))
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()
+
     def deleteData(self):
+        cur = self.conn.cursor()
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected row"),QMessageBox.Yes,QMessageBox.No) 
         if(reply == QMessageBox.Yes):
-            result = self.cur.execute("DELETE FROM category WHERE id=?",(id,))
+            result = cur.execute("DELETE FROM category WHERE id=?",(id,))
             self.conn.commit()
             if(result):
                 QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
                 self.loadData()
+            cur.close()
+                
 
 
 

@@ -52,6 +52,7 @@ class Profile(QDialog):
                     result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,password=? WHERE id=?",(name,username,phone,email,password2,self.uid,))
                     conn.commit()
                     if(result):
+                        cur.close()
                         self.loadData()
                         QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
                     else:
@@ -63,6 +64,7 @@ class Profile(QDialog):
                     result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=? WHERE id=?",(name,username,phone,email,self.uid,))    
                     conn.commit()
                     if(result):
+                        cur.close()
                         self.loadData()
                         QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
                     else:

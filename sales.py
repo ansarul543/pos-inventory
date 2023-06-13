@@ -97,8 +97,9 @@ class Sales(QWidget):
         d = self.combocustomer.currentText()
         x = d.split(", ")
         if(len(x)>1):
-            self.sv.setText(x[0])      
-            result = self.cur.execute("SELECT * FROM customer WHERE id=?",(x[0],))
+            self.sv.setText(x[0])     
+            cur = self.conn.cursor() 
+            result = cur.execute("SELECT * FROM customer WHERE id=?",(x[0],))
             data = result.fetchone()
             if data:
                 self.cn.setText(data[1])
@@ -111,6 +112,7 @@ class Sales(QWidget):
                 self.cid =""  
                 self.previousdue.setText("0")
                 self.caddress.setText("")
+            cur.close()    
         else:
            self.sv.setText("")      
            self.searchCustomer()  
@@ -131,7 +133,8 @@ class Sales(QWidget):
             self.searchP() 
 
     def smsapi(self):
-        result = self.cur.execute("SELECT * FROM bulksetting WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM bulksetting WHERE id=? ",(1,))
         if(result):
             data = result.fetchone()
             api = data[1]
@@ -141,6 +144,7 @@ class Sales(QWidget):
             self.automsg=data[5]
             self.msg=data[6]
             url = f"{api}?username={username}&password={password}&number={number}&message=Test"
+            cur.close()
             return url
 
     def selectDataOnChange(self):
@@ -224,6 +228,7 @@ class Sales(QWidget):
         name = self.cn.text()
         url = self.smsapi()
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        cur = self.conn.cursor()
         if cid=="" and self.cn.text()=="":
             QMessageBox.warning(None, ("Required"), 
             ("Customer Name is Required"),
@@ -239,26 +244,26 @@ class Sales(QWidget):
         else:
             if len(self.data)>0:
                 query = (cid,total,invoice,vat,labour,self.disd,paid,paytype,dateandtime,self.uid,addressarea,paribahan,previousdue,)
-                result = self.cur.execute("INSERT INTO sinvoice(cid,total,invoice,vat,labour,discount,paid,paytype,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
+                result = cur.execute("INSERT INTO sinvoice(cid,total,invoice,vat,labour,discount,paid,paytype,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
                 self.conn.commit()
                 if result:
                     id = result.lastrowid
                     for i in self.data:
                         pid = i["pid"]
                         query2 = (cid,pid,id,i["qtn"],i["sale"],i["type"],invoice,i["discount_p"],dateandtime,self.uid,i["ppercent"],i["vatpercent"],)
-                        dd = self.cur.execute("INSERT INTO sales(cid,pid,sinvoice_id,qtn,price,type,invoice,discount,date,uid,discountpercent,vatpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
+                        dd = cur.execute("INSERT INTO sales(cid,pid,sinvoice_id,qtn,price,type,invoice,discount,date,uid,discountpercent,vatpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
                         self.conn.commit()
                         salesid = dd.lastrowid
-                        result2 = self.cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
+                        result2 = cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
                         data = result2.fetchone()
                         qtns = data[8]
                         qtn2 = float(qtns)-float(i["qtn"])
-                        self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn2,pid,))
+                        cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn2,pid,))
                         self.conn.commit()
                         query3 = ("Sales",pid,salesid,cid,self.uid,i["sale"],i["qtn"],i["discount_p"],i["ppercent"],)
-                        self.cur.execute("INSERT INTO pledger(type,pid,sales_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
+                        cur.execute("INSERT INTO pledger(type,pid,sales_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
                         self.conn.commit()                          
-                    self.cur.execute("INSERT INTO sss(type,invoice_id,cid,date,uid)VALUES(?,?,?,?,?)",("SALES",id,cid,dateandtime,self.uid,))
+                    cur.execute("INSERT INTO sss(type,invoice_id,cid,date,uid)VALUES(?,?,?,?,?)",("SALES",id,cid,dateandtime,self.uid,))
                     self.conn.commit()   
                     if self.automsg=="1":
                         try:
@@ -275,7 +280,8 @@ class Sales(QWidget):
                     self.labour.setText("0")
                     self.vat.setText("0")
                     self.discount.setText("0")  
-                    self.combocustomer.setCurrentText("Customers")                                       
+                    self.combocustomer.setCurrentText("Customers")       
+                    cur.close()                                
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not saved try again"),QMessageBox.Ok)        
             else:
@@ -303,7 +309,8 @@ class Sales(QWidget):
         phone = self.mobile.text()
         name = self.cn.text()
         url = self.smsapi()
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}        
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}  
+        cur = self.conn.cursor()      
         if cid=="" and self.cn.text()=="":
             QMessageBox.warning(None, ("Required"), 
             ("Customer Name is Required"),
@@ -319,26 +326,26 @@ class Sales(QWidget):
         else:
             if len(self.data)>0:
                 query = (cid,total,invoice,vat,labour,self.disd,paid,paytype,dateandtime,self.uid,addressarea,paribahan,previousdue,)
-                result = self.cur.execute("INSERT INTO sinvoice(cid,total,invoice,vat,labour,discount,paid,paytype,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
+                result = cur.execute("INSERT INTO sinvoice(cid,total,invoice,vat,labour,discount,paid,paytype,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
                 self.conn.commit()
                 if result:
                     id = result.lastrowid
                     for i in self.data:
                         pid = i["pid"]
                         query2 = (cid,pid,id,i["qtn"],i["sale"],i["type"],invoice,i["discount_p"],dateandtime,self.uid,i["ppercent"],i["vatpercent"],)
-                        dd = self.cur.execute("INSERT INTO sales(cid,pid,sinvoice_id,qtn,price,type,invoice,discount,date,uid,discountpercent,vatpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
+                        dd = cur.execute("INSERT INTO sales(cid,pid,sinvoice_id,qtn,price,type,invoice,discount,date,uid,discountpercent,vatpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
                         self.conn.commit()
                         salesid = dd.lastrowid
-                        result2 = self.cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
+                        result2 = cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
                         data = result2.fetchone()
                         qtns = data[8]
                         qtn2 = float(qtns)-float(i["qtn"])
-                        self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn2,pid,))
+                        cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn2,pid,))
                         self.conn.commit()
                         query3 = ("Sales",pid,salesid,cid,self.uid,i["sale"],i["qtn"],i["discount_p"],i["ppercent"],)
-                        self.cur.execute("INSERT INTO pledger(type,pid,sales_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
+                        cur.execute("INSERT INTO pledger(type,pid,sales_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
                         self.conn.commit()                          
-                    self.cur.execute("INSERT INTO sss(type,invoice_id,cid,date,uid)VALUES(?,?,?,?,?)",("SALES",id,cid,dateandtime,self.uid,))
+                    cur.execute("INSERT INTO sss(type,invoice_id,cid,date,uid)VALUES(?,?,?,?,?)",("SALES",id,cid,dateandtime,self.uid,))
                     self.conn.commit()   
                     if self.automsg=="1":
                         try:
@@ -350,11 +357,11 @@ class Sales(QWidget):
                             error=0        
                             print('error')                                   
                     QMessageBox.information(None, ("Successful"), ("Data added and saved successfully"),QMessageBox.Ok)  
-                    s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+                    s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
                     setting = s.fetchone()
-                    invoiced = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,customer.address,customer.phone,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,customer.id as cid,sinvoice.previus_due,sinvoice.area,sinvoice.paribahan,sinvoice.status FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id WHERE sinvoice.invoice=?",(invoice,))   
+                    invoiced = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,customer.address,customer.phone,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,customer.id as cid,sinvoice.previus_due,sinvoice.area,sinvoice.paribahan,sinvoice.status FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id WHERE sinvoice.invoice=?",(invoice,))   
                     invoicedata = invoiced.fetchone()
-                    result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,sales.vatpercent,sales.discountpercent FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE sales.invoice=?",(invoice,))
+                    result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,sales.vatpercent,sales.discountpercent FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE sales.invoice=?",(invoice,))
                     datas = result.fetchall() 
                     value = 0
                     for index, i in enumerate(datas):
@@ -375,7 +382,8 @@ class Sales(QWidget):
                     self.labour.setText("0")
                     self.vat.setText("0")
                     self.discount.setText("0")   
-                    self.combocustomer.setCurrentText("Customers")  
+                    self.combocustomer.setCurrentText("Customers") 
+                    cur.close() 
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not saved try again"),QMessageBox.Ok)        
             else:
@@ -510,6 +518,7 @@ class Sales(QWidget):
         #print(date+" "+currenttime)
     def searchP(self):
         value = self.pv.text()
+        cur = self.conn.cursor()
         if value=="":
             value = value
             self.pn.setText("")  
@@ -522,7 +531,7 @@ class Sales(QWidget):
             self.vatpercent="0"
             self.qtn.setText("0")
         else:
-            result = self.cur.execute("SELECT * FROM products WHERE id=? OR barcode=? OR name LIKE ? ",(value,value,"%"+value+"%",))
+            result = cur.execute("SELECT * FROM products WHERE id=? OR barcode=? OR name LIKE ? ",(value,value,"%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.pn.setText(data[1])
@@ -560,12 +569,14 @@ class Sales(QWidget):
                 self.wholesalep="0"       
                 self.vatpercent="0"    
                 self.qtn.setText("0")
+            cur.close()    
 
 
     def searchCustomer(self):
         value = self.sv.text()
         if value!="":
-            result = self.cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.cn.setText(data[1])
@@ -587,6 +598,7 @@ class Sales(QWidget):
                 self.discountpercent.setChecked(False)
                 self.discount.setText("0")
                 self.caddress.setText("")
+            cur.close()    
         else:
             self.cn.setText("")  
             self.cid ="" 

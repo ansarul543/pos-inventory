@@ -45,7 +45,8 @@ class SupplierLedger(QDialog):
     def dueSearchSup(self):
         sv = self.suppliers.text()
         if sv!="":
-            result = self.cur.execute("SELECT id,name,phone,address FROM supplier WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT id,name,phone,address FROM supplier WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
             result=result.fetchall()
             self.supplierdue.setRowCount(len(result))
             for index, i in enumerate(result):
@@ -55,9 +56,11 @@ class SupplierLedger(QDialog):
                 self.supplierdue.setItem(index,3,QTableWidgetItem(i[3]))  
                 bal = balsup.bal(i[0])  
                 self.supplierdue.setItem(index,4,QTableWidgetItem(str(bal)))       
+            cur.close()    
 
     def supplierDue(self):
-        result = self.cur.execute("SELECT id,name,phone,address FROM supplier ")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,phone,address FROM supplier ")
         result=result.fetchall()
         self.supplierdue.setRowCount(len(result))
         for index, i in enumerate(result):
@@ -67,6 +70,7 @@ class SupplierLedger(QDialog):
             self.supplierdue.setItem(index,3,QTableWidgetItem(i[3]))
             bal = balsup.bal(i[0])  
             self.supplierdue.setItem(index,4,QTableWidgetItem(str(bal))) 
+        cur.close()    
 
        
 

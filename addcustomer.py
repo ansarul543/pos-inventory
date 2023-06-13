@@ -49,7 +49,8 @@ class AddCustomer(QDialog):
             ("Discount is required"),
              QMessageBox.Ok)             
         else:    
-            result = self.cur.execute("UPDATE customer SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=?,discount=? WHERE id=?",(name,email,phone,type,website,address,partycode,discount,self.id,))
+            cur = self.conn.cursor()
+            result = cur.execute("UPDATE customer SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=?,discount=? WHERE id=?",(name,email,phone,type,website,address,partycode,discount,self.id,))
             self.conn.commit()
             if(result):
                 self.loadData()
@@ -59,27 +60,31 @@ class AddCustomer(QDialog):
                 self.website.setText("")
                 self.address.setPlainText("")
                 self.partycode.setText("")         
-                self.discount.setText("0")          
+                self.discount.setText("0")    
+                cur.close()      
                 QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
             else:
                 QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)    
 
     def search(self):
-        sv = self.searchv.text()    
-        result = self.cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        sv = self.searchv.text()  
+        cur = self.conn.cursor()  
+        result = cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ORDER BY id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()        
 
     def ddbclick(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         if(id):
             self.id = id
-            result = self.cur.execute("SELECT * FROM customer WHERE id=?",(self.id,))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM customer WHERE id=?",(self.id,))
             if(result):
                 data = result.fetchone()
                 self.name.setText(data[1])
@@ -93,11 +98,13 @@ class AddCustomer(QDialog):
                 if(data[4]=="Wholesale"):
                     self.type2.setChecked(True)
                 self.partycode.setText(data[7])    
+                cur.close()
 
     def deleteData(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         self.loadData()
+        cur = self.conn.cursor()
         if id==None:
             QMessageBox.warning(None, ("Warning"), ("Please select any row"),QMessageBox.Ok)
         elif id=="0":
@@ -105,19 +112,20 @@ class AddCustomer(QDialog):
         else:          
             reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected row .\n you can lose your all customer related data from other table"),QMessageBox.Yes,QMessageBox.No) 
             if(reply == QMessageBox.Yes):
-                result = self.cur.execute("DELETE FROM customer WHERE id=?",(id,))
+                result = cur.execute("DELETE FROM customer WHERE id=?",(id,))
                 self.conn.commit()
                 if(result):
-                    self.cur.execute("DELETE FROM sinvoice WHERE cid=?",(id,))
+                    cur.execute("DELETE FROM sinvoice WHERE cid=?",(id,))
                     self.conn.commit()                     
-                    self.cur.execute("DELETE FROM sales WHERE cid=?",(id,))
+                    cur.execute("DELETE FROM sales WHERE cid=?",(id,))
                     self.conn.commit() 
-                    self.cur.execute("DELETE FROM cash WHERE type='Customer' AND accid=?",(id,))
+                    cur.execute("DELETE FROM cash WHERE type='Customer' AND accid=?",(id,))
                     self.conn.commit() 
-                    self.cur.execute("DELETE FROM sss WHERE cid=?",(id,))
+                    cur.execute("DELETE FROM sss WHERE cid=?",(id,))
                     self.conn.commit()     
-                    self.cur.execute("DELETE FROM pledger WHERE cid=?",(id,))
-                    self.conn.commit()                                                                     
+                    cur.execute("DELETE FROM pledger WHERE cid=?",(id,))
+                    self.conn.commit()   
+                    cur.close()                                                                  
                     QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
                     self.loadData()            
     def addCus(self):
@@ -141,10 +149,11 @@ class AddCustomer(QDialog):
             QMessageBox.warning(None, ("Discount is required"), 
             ("Discount is required"),
              QMessageBox.Ok)              
-        else:    
+        else: 
+            cur = self.conn.cursor()   
             due = self.due.text()
-            if due=="" or due=="0":            
-                result = self.cur.execute("INSERT INTO customer(name,email,phone,type,website,address,partycode,discount)VALUES(?,?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,discount,))
+            if due=="" or due=="0":           
+                result = cur.execute("INSERT INTO customer(name,email,phone,type,website,address,partycode,discount)VALUES(?,?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,discount,))
                 self.conn.commit()
                 if(result):
                     self.loadData()
@@ -156,6 +165,7 @@ class AddCustomer(QDialog):
                     self.partycode.setText("")
                     self.due.setText("0")
                     self.discount.setText("0")
+                    cur.close()
                     self.loadData()
                     QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok) 
                 else:
@@ -163,16 +173,16 @@ class AddCustomer(QDialog):
                     QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Ok)    
             else:
                 invoice = str(random.randint(10000, 100000))
-                result = self.cur.execute("INSERT INTO customer(name,email,phone,type,website,address,partycode)VALUES(?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,))
+                result = cur.execute("INSERT INTO customer(name,email,phone,type,website,address,partycode)VALUES(?,?,?,?,?,?,?)",(name,email,phone,type,website,address,partycode,))
                 self.conn.commit()
                 if(result):
                     cid = result.lastrowid
                     query = (cid,due,invoice,self.uid,)
-                    result2 = self.cur.execute("INSERT INTO sinvoice(cid,total,invoice,uid)VALUES(?,?,?,?)",query)
+                    result2 = cur.execute("INSERT INTO sinvoice(cid,total,invoice,uid)VALUES(?,?,?,?)",query)
                     if (result2):
                         self.conn.commit()
                         id = result2.lastrowid
-                        self.cur.execute("INSERT INTO sss(type,invoice_id,cid,uid)VALUES(?,?,?,?)",("Previous Due",id,cid,self.uid,))
+                        cur.execute("INSERT INTO sss(type,invoice_id,cid,uid)VALUES(?,?,?,?)",("Previous Due",id,cid,self.uid,))
                         self.conn.commit() 
                     self.loadData()
                     self.name.setText("")
@@ -186,7 +196,8 @@ class AddCustomer(QDialog):
                     QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok) 
                 else:
                     self.loadData()
-                    QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Ok)                        
+                    QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Ok)        
+            cur.close()                        
 
     def select(self):
         if(self.type.isChecked()):
@@ -196,13 +207,15 @@ class AddCustomer(QDialog):
 
 
     def loadData(self):
-        result = self.cur.execute("SELECT * FROM customer ORDER BY id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM customer ORDER BY id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
  
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
-                        column_number, QTableWidgetItem(str(data)))        
+                        column_number, QTableWidgetItem(str(data)))   
+        cur.close()             
 
 

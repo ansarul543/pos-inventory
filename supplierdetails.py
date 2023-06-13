@@ -49,7 +49,8 @@ class SupplierDetails(QDialog):
             self.textEdit_2.print_(printer)
 
     def viewDate2(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()     
         time = QTime.currentTime()
         currenttime = '23:58:00'
@@ -67,15 +68,17 @@ class SupplierDetails(QDialog):
                INNER JOIN products ON pledger.pid=products.id
                WHERE pledger.sid=? and pledger.date BETWEEN ? AND ? 
                """
-        result = self.cur.execute(query,(self.id,fromd,tod,))
+        result = cur.execute(query,(self.id,fromd,tod,))
         data = result.fetchall()
-        cu = self.cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(self.id,))
+        cu = cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(self.id,))
         supplier = cu.fetchone()
         with open("html/supplieritemhistory.html") as file:
             self.textEdit_2.setText(Template(file.read()).render(fromd=fromd,supplier=supplier,tod=date,setting=setting,data=data,name=""))
+        cur.close()
 
     def loadData2(self):        
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         query = """
                SELECT strftime('%d/%m/%Y',pledger.date),pledger.type,products.name,customer.name,
@@ -85,13 +88,13 @@ class SupplierDetails(QDialog):
                INNER JOIN products ON pledger.pid=products.id
                WHERE pledger.sid=?
                """
-        result = self.cur.execute(query,(self.id,))
+        result = cur.execute(query,(self.id,))
         data = result.fetchall()
-        cu = self.cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(self.id,))
+        cu = cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(self.id,))
         supplier = cu.fetchone()
         with open("html/supplieritemhistory.html") as file:
             self.textEdit_2.setText(Template(file.read()).render(fromd="",tod="",supplier=supplier,setting=setting,data=data,name=""))
-    
+        cur.close()
         
     def printB(self):
         printer = QPrinter(QPrinter.HighResolution)
@@ -117,10 +120,11 @@ class SupplierDetails(QDialog):
             ("Data not selected yet Please select data "),
              QMessageBox.Cancel) 
         else:
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            cur = self.conn.cursor()
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
 
-            cu = self.cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(id,))
+            cu = cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(id,))
             supplier = cu.fetchone()
             
 
@@ -139,6 +143,8 @@ class SupplierDetails(QDialog):
             ledger = led.fetchall()
             with open("html/supplierledger.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd='',tod='',supplier=supplier,setting=setting,ledger=ledger))
+            cur.close()
+
 
     def dateLoad(self):
         id= self.id    
@@ -156,9 +162,10 @@ class SupplierDetails(QDialog):
             ("Data not selected yet Please select data "),
              QMessageBox.Cancel) 
         else:
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            cur = self.conn.cursor()
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
-            cu = self.cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(id,))
+            cu = cur.execute("SELECT id,name,address,phone FROM supplier WHERE id=? ",(id,))
             supplier = cu.fetchone()
             lqr = """
             SELECT ppp.id,ppp.type,strftime('%d/%m/%Y',ppp.date),pinvoice.invoice,
@@ -175,7 +182,7 @@ class SupplierDetails(QDialog):
 
             with open("html/supplierledger.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,supplier=supplier,setting=setting,ledger=ledger))
-             
+            cur.close() 
 
 
        

@@ -50,10 +50,12 @@ class Account(QDialog):
             QMessageBox.warning(None, ("Required"), 
             ("Data not selected yet Please select data before update"),
              QMessageBox.Cancel)   
-        else:    
-            result = self.cur.execute("UPDATE account SET name=?,type=?,desc=?,accnumber=? WHERE id=?",(name,type,desc,acc,self.id,))
+        else:   
+            cur = self.conn.cursor() 
+            result = cur.execute("UPDATE account SET name=?,type=?,desc=?,accnumber=? WHERE id=?",(name,type,desc,acc,self.id,))
             self.conn.commit()
             if(result):
+                cur.close()
                 self.loadData()
                 self.id=""
                 self.name.setText("")
@@ -64,18 +66,22 @@ class Account(QDialog):
                 QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel) 
 
     def loadData(self):
-        result = self.cur.execute("SELECT id,name,desc,accnumber,val FROM account ORDER BY id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,desc,accnumber,val FROM account ORDER BY id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()
+
     def ddbclick(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         if(id):
-            result = self.cur.execute("SELECT * FROM account WHERE id=? ",(id,))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM account WHERE id=? ",(id,))
             if(result):
                 data = result.fetchone()
                 self.name.setText(data[1])
@@ -83,6 +89,7 @@ class Account(QDialog):
                 self.desc.setText(data[3])
                 self.acc.setText(data[5])
                 self.id=data[0]
+            cur.close()    
 
     def addS(self):
         name = self.name.text()
@@ -95,7 +102,8 @@ class Account(QDialog):
             ("Name Required"),
              QMessageBox.Cancel) 
         else:    
-            result = self.cur.execute("INSERT INTO account(name,type,desc,val,accnumber)VALUES(?,?,?,?,?)",(name,type,desc,val,acc,))
+            cur = self.conn.cursor()
+            result = cur.execute("INSERT INTO account(name,type,desc,val,accnumber)VALUES(?,?,?,?,?)",(name,type,desc,val,acc,))
             self.conn.commit()
             if(result):
                 self.name.setText("")
@@ -106,17 +114,20 @@ class Account(QDialog):
             else:
                 self.loadData()
                 QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)    
+            cur.close()    
    
     def deleteData(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected row"),QMessageBox.Yes,QMessageBox.No) 
         if(reply == QMessageBox.Yes):
-            result = self.cur.execute("DELETE FROM account WHERE id=?",(id,))
+            cur = self.conn.cursor()
+            result = cur.execute("DELETE FROM account WHERE id=?",(id,))
             self.conn.commit()
             if(result):
-                self.cur.execute("DELETE FROM cash WHERE type='Official' AND accid=?",(id,))
+                cur.execute("DELETE FROM cash WHERE type='Official' AND accid=?",(id,))
                 self.conn.commit()
+                cur.close()
                 QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
                 self.loadData()
 

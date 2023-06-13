@@ -459,6 +459,7 @@ class Login(QWidget):
             self.trialb.clicked.connect(self.trial)
             self.submitb.clicked.connect(self.licenseB)
             self.exitBtn.clicked.connect(self.exitB)
+        cur.close()    
 
     def trial(self):
         hostname = socket.gethostname()
@@ -476,13 +477,11 @@ class Login(QWidget):
                 if trialdate=="0" and trialexpiredate=="0":
                     dateexpq = datetime.datetime.now() + datetime.timedelta(days=365)
                     dateexp = cryptocode.encrypt(str(dateexpq),"mypassword") 
-                    conn = self.db
-                    cur = conn.cursor()
                     result = cur.execute("UPDATE trial SET trs='1',trd=?,trdexpire=? WHERE id=?",(currentdate,dateexp,1,))
                     conn.commit()
                     if result:
                         self.hide()    
-                        conn.close()
+                        cur.close()
                         QMessageBox.information(None, ("Success"), ("Thank you for using our Trial version software"),QMessageBox.Ok) 
                         self.login = Login()
                         self.login.show()
@@ -497,6 +496,7 @@ class Login(QWidget):
                 QMessageBox.warning(None, ("Failed"), ("Something Went Wrong"),QMessageBox.Ok)     
         else:
             QMessageBox.warning(None, ("Failed"), ("Trial already used . Please Buy Licence key to resume"),QMessageBox.Ok)    
+        cur.close()
 
     def licenseB(self):
         hostname = socket.gethostname()
@@ -512,7 +512,7 @@ class Login(QWidget):
                 conn.commit()
                 if result:
                     self.hide()
-                    conn.close()
+                    cur.close()
                     QMessageBox.information(None, ("Success"), ("Thank you for purchasing our software \nYour License code successfully verified"),QMessageBox.Ok) 
                     self.login = Login()
                     self.login.show()
@@ -529,7 +529,7 @@ class Login(QWidget):
                 conn.commit()
                 if result:
                     self.hide()
-                    conn.close()
+                    cur.close()
                     QMessageBox.information(None, ("Success"), ("Thank you for purchasing our software \nYour License code successfully verified"),QMessageBox.Ok) 
                     self.login = Login()
                     self.login.show()                
@@ -554,14 +554,14 @@ class Login(QWidget):
                 datetime2 = date   
                 result = cur.execute("INSERT into loginhistory(uid,login,logout) VALUES(?,?,?)",(data[0],datetime,datetime2))
                 conn.commit()
-                conn.close()
                 self.hide()
                 self.mainW = MainWin(data[0],result.lastrowid,data[5])
                 self.mainW.show()
             else:
                 QMessageBox.information(None, ("Login Failed"), 
             ("Please check your password and try again"),
-             QMessageBox.Ok)              
+             QMessageBox.Ok)    
+        cur.close()                  
 
     def resetBut(self):
         self.username.setText("")   

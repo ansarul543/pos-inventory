@@ -45,9 +45,10 @@ class ExpenseReport(QDialog):
 
         date_current = self.tod_5.date() 
         date = date_current.toString("yyyy-MM-dd")
-        tod = date+" "+currenttime     
+        tod = date+" "+currenttime   
+        cur = self.conn.cursor()  
         if sv=="":      
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
             result=result.fetchall()
             self.officialpay.setRowCount(len(result))
             valuein = 0
@@ -68,7 +69,7 @@ class ExpenseReport(QDialog):
             self.opayshowout.setText(str(valueout)) 
             self.opayshowin.setText(str(valuein))
         else:
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%",fromd,tod,))
             result=result.fetchall()
             self.officialpay.setRowCount(len(result))
             valuein = 0
@@ -88,11 +89,13 @@ class ExpenseReport(QDialog):
                 self.officialpay.setItem(index,5,QTableWidgetItem(i[6]))
             self.opayshowout.setText(str(valueout)) 
             self.opayshowin.setText(str(valuein))
+        cur.close()    
 
     def officialspaySearch(self):
         sv = self.svop.text()
+        cur = self.conn.cursor()
         if sv!="":
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ?",("%"+sv+"%",))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ?",("%"+sv+"%",))
             result=result.fetchall()
             self.officialpay.setRowCount(len(result))
             valuein = 0
@@ -112,9 +115,11 @@ class ExpenseReport(QDialog):
                 self.officialpay.setItem(index,5,QTableWidgetItem(i[6]))
             self.opayshowout.setText(str(valueout)) 
             self.opayshowin.setText(str(valuein))
+        cur.close()    
 
     def officialspay(self):
-        result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' ORDER BY cash.id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' ORDER BY cash.id DESC")
         result=result.fetchall()
         self.officialpay.setRowCount(len(result))
         valuein = 0
@@ -134,6 +139,7 @@ class ExpenseReport(QDialog):
             self.officialpay.setItem(index,5,QTableWidgetItem(i[6]))
         self.opayshowout.setText(str(valueout)) 
         self.opayshowin.setText(str(valuein))
+        cur.close()
 
      
 

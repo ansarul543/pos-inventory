@@ -40,7 +40,8 @@ class Stocks(QDialog):
 
     def catChange(self):
         sv = self.category.currentText()
-        result = self.cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products WHERE name LIKE ? OR id LIKE ? OR category LIKE ? OR unit LIKE ? ORDER BY qtn DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products WHERE name LIKE ? OR id LIKE ? OR category LIKE ? OR unit LIKE ? ORDER BY qtn DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         result=result.fetchall()
         self.tableWidget.setRowCount(len(result))
         value = 0
@@ -68,10 +69,12 @@ class Stocks(QDialog):
         self.total.setText(str(value))  
         self.wholesale.setText(str(whole )) 
         self.retail.setText(str(retail ))
+        cur.close()
 
     def proChange(self):
         sv = self.product.currentText()
-        result = self.cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products WHERE name LIKE ? OR id LIKE ? OR category LIKE ? OR unit LIKE ? ORDER BY qtn DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products WHERE name LIKE ? OR id LIKE ? OR category LIKE ? OR unit LIKE ? ORDER BY qtn DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         result=result.fetchall()
         self.tableWidget.setRowCount(len(result))
         value = 0
@@ -99,23 +102,30 @@ class Stocks(QDialog):
         self.total.setText(str(value))  
         self.wholesale.setText(str(whole )) 
         self.retail.setText(str(retail )) 
+        cur.close()
 
     def categoryData(self):
-        data = self.cur.execute("SELECT * FROM category")
+        cur = self.conn.cursor()
+        data = cur.execute("SELECT * FROM category")
         result = data.fetchall()
         for i in result:
             self.category.addItem(i[1])
+        cur.close()  
+
     def proData(self):
-        data = self.cur.execute("SELECT * FROM products")
+        cur = self.conn.cursor()
+        data = cur.execute("SELECT * FROM products")
         result = data.fetchall()       
         for i in result:
             self.product.addItem(i[1])
+        cur.close()    
 
     def allb(self):
         self.loadData()
 
     def loadData2(self):
-        result = self.cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,CAST(reorder as DOUBLE) as reorder FROM products WHERE CAST(reorder as DOUBLE)>=CAST(qtn as DOUBLE) OR qtn='0.0' ORDER BY qtn asc  ")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,CAST(reorder as DOUBLE) as reorder FROM products WHERE CAST(reorder as DOUBLE)>=CAST(qtn as DOUBLE) OR qtn='0.0' ORDER BY qtn asc  ")
         result=result.fetchall()
         length = len(result)
         self.tableWidget2.setRowCount(length)
@@ -133,11 +143,12 @@ class Stocks(QDialog):
             self.tableWidget2.item(index, 3).setBackground(QtGui.QColor(255, 200, 192))
             self.tableWidget2.item(index, 7).setBackground(QtGui.QColor(184, 234, 238))
 
-
+        cur.close()
            
 
     def loadData(self):
-        result = self.cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products ORDER BY qtn DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products ORDER BY qtn DESC")
         result=result.fetchall()
         self.tableWidget.setRowCount(len(result))
         value = 0
@@ -161,16 +172,18 @@ class Stocks(QDialog):
             if float(i[4])<=float(i[8]):
                 self.tableWidget.item(index, 3).setBackground(QtGui.QColor(255, 200, 192))
             else:
-                self.tableWidget.item(index, 3).setBackground(QtGui.QColor(184, 234, 238))    
+                self.tableWidget.item(index, 3).setBackground(QtGui.QColor(184, 234, 238))            
 
         self.total.setText(str(value))  
         self.wholesale.setText(str(whole )) 
         self.retail.setText(str(retail ))
+        cur.close()
 
 
     def search(self):
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products WHERE name LIKE ? OR id LIKE ? OR category LIKE ? OR unit LIKE ? ORDER BY qtn DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,category,unit,CAST(qtn as DOUBLE) as qtn,buyrate,salerate,wholesale,reorder FROM products WHERE name LIKE ? OR id LIKE ? OR category LIKE ? OR unit LIKE ? ORDER BY qtn DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         result=result.fetchall()
         self.tableWidget.setRowCount(len(result))
         value = 0
@@ -198,5 +211,6 @@ class Stocks(QDialog):
         self.total.setText(str(value))  
         self.wholesale.setText(str(whole )) 
         self.retail.setText(str(retail )) 
+        cur.close()
 
 

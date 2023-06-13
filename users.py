@@ -42,9 +42,11 @@ class User(QDialog):
              QMessageBox.Cancel)  
         else:    
             if(password):
-                result = self.cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,password=?,role=? WHERE id=?",(name,username,phone,email,password2,role,self.id,))
+                cur = self.conn.cursor()
+                result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,password=?,role=? WHERE id=?",(name,username,phone,email,password2,role,self.id,))
                 self.conn.commit()
                 if(result):
+                    cur.close()
                     self.loadData()
                     self.id=""
                     self.name.setText("")
@@ -56,9 +58,11 @@ class User(QDialog):
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel)                
             else:
-                result = self.cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,role=? WHERE id=?",(name,username,phone,email,role,self.id,))    
+                cur = self.conn.cursor()
+                result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,role=? WHERE id=?",(name,username,phone,email,role,self.id,))    
                 self.conn.commit()
                 if(result):
+                    cur.close()
                     self.loadData()
                     self.id=""
                     self.name.setText("")
@@ -73,18 +77,22 @@ class User(QDialog):
 
 
     def loadData(self):
-        result = self.cur.execute("SELECT * FROM users ORDER BY id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM users ORDER BY id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()        
+      
     def ddbclick(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         if(id):
-            result = self.cur.execute("SELECT * FROM users WHERE id=? ",(id,))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM users WHERE id=? ",(id,))
             if(result):
                 data = result.fetchone()
                 self.name.setText(data[1])
@@ -98,6 +106,7 @@ class User(QDialog):
                 if(data[5]=="Manager"):
                     self.manager.setChecked(True)    
                 self.id=data[0]
+            cur.close()
 
     def addS(self):
         name = self.name.text()
@@ -113,9 +122,11 @@ class User(QDialog):
             ("Please Fill name username and phone and Password Field"),
              QMessageBox.Cancel) 
         else:    
-            result = self.cur.execute("INSERT INTO users(name,username,phone,email,password,role)VALUES(?,?,?,?,?,?)",(name,username,phone,email,password2,role,))
+            cur = self.conn.cursor()
+            result = cur.execute("INSERT INTO users(name,username,phone,email,password,role)VALUES(?,?,?,?,?,?)",(name,username,phone,email,password2,role,))
             self.conn.commit()
             if(result):
+                cur.close()
                 self.name.setText("")
                 self.username.setText("")
                 self.phone.setText("")
@@ -136,24 +147,29 @@ class User(QDialog):
             return "Manager" 
 
     def search(self):
-        sv = self.searchv.text()    
-        result = self.cur.execute("SELECT * FROM users WHERE name LIKE ? OR phone LIKE ?  ORDER BY id DESC",("%"+sv+"%","%"+sv+"%",))
+        sv = self.searchv.text()  
+        cur = self.conn.cursor()  
+        result = cur.execute("SELECT * FROM users WHERE name LIKE ? OR phone LIKE ?  ORDER BY id DESC",("%"+sv+"%","%"+sv+"%",))
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()        
+
     def deleteData(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
         reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected row"),QMessageBox.Yes,QMessageBox.No) 
         if(reply == QMessageBox.Yes):
-            result = self.cur.execute("DELETE FROM users WHERE id=?",(id,))
+            cur = self.conn.cursor()
+            result = cur.execute("DELETE FROM users WHERE id=?",(id,))
             self.conn.commit()
             if(result):
-                self.cur.execute("DELETE FROM loginhistory WHERE uid=?",(id,))
+                cur.execute("DELETE FROM loginhistory WHERE uid=?",(id,))
                 self.conn.commit()
-                QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
+                QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok)
+                cur.close() 
                 self.loadData()
 

@@ -43,6 +43,7 @@ class QuickPurchase(QDialog):
         paid = self.paid.text()  
         total = self.total.text()  
         previousdue = self.previousdue.text()
+        cur = self.conn.cursor()
         if sid=="" and self.sn.text()=="":
             QMessageBox.warning(None, ("Required"), 
             ("Supplier Name is Required"),
@@ -57,11 +58,11 @@ class QuickPurchase(QDialog):
              QMessageBox.Ok)   
         else:
             query = (sid,total,invoice,paid,dateandtime,self.uid,previousdue,)
-            result = self.cur.execute("INSERT INTO pinvoice(sid,total,invoice,paid,date,uid,previus_due)VALUES(?,?,?,?,?,?,?)",query)
+            result = cur.execute("INSERT INTO pinvoice(sid,total,invoice,paid,date,uid,previus_due)VALUES(?,?,?,?,?,?,?)",query)
             self.conn.commit()     
             if result:
                 id = result.lastrowid
-                self.cur.execute("INSERT INTO ppp(type,invoice_id,sid,date,uid)VALUES(?,?,?,?,?)",("PURCHASE",id,sid,dateandtime,self.uid,))
+                cur.execute("INSERT INTO ppp(type,invoice_id,sid,date,uid)VALUES(?,?,?,?,?)",("PURCHASE",id,sid,dateandtime,self.uid,))
                 self.conn.commit()
                 QMessageBox.information(None, ("Successful"), ("Data added and saved successfully"),QMessageBox.Ok) 
                 self.total.setText("0")
@@ -71,13 +72,15 @@ class QuickPurchase(QDialog):
                 self.previousdue.setText("")
                 self.invoice.setText(str(random.randint(10000, 100000)))
             else:
-                QMessageBox.warning(None, ("Failed"), ("Data not saved"),QMessageBox.Ok)                    
+                QMessageBox.warning(None, ("Failed"), ("Data not saved"),QMessageBox.Ok)       
+        cur.close()                     
                                       
 
     def searchSupplier(self):
         value = self.sv.text()
+        cur = self.conn.cursor()
         if value!="":
-            result = self.cur.execute("SELECT * FROM supplier WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
+            result = cur.execute("SELECT * FROM supplier WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.sn.setText(data[1])
@@ -92,6 +95,7 @@ class QuickPurchase(QDialog):
             self.sn.setText("")  
             self.sid =""  
             self.previousdue.setText("0")  
+        cur.close()    
 
 
 

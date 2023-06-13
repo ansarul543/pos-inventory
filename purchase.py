@@ -105,8 +105,9 @@ class Purchases(QWidget):
         d = self.combosupplier.currentText()
         x = d.split(", ")
         if(len(x)>1):
-            self.sv.setText(x[0])      
-            result = self.cur.execute("SELECT * FROM supplier WHERE id=?",(x[0],))
+            self.sv.setText(x[0])   
+            cur = self.conn.cursor()   
+            result = cur.execute("SELECT * FROM supplier WHERE id=?",(x[0],))
             data = result.fetchone()
             if data:
                 self.sn.setText(data[1])
@@ -114,6 +115,7 @@ class Purchases(QWidget):
                 bal = balsup.bal(data[0])
                 self.previousdue.setText(str(bal))
                 self.saddress.setText(data[6])
+                cur.close()
             else:
                 self.sn.setText("")  
                 self.sid =""  
@@ -213,19 +215,20 @@ class Purchases(QWidget):
             ("All 0 Zero field not be empty minimum 0 is required"),
              QMessageBox.Ok)                   
         else:
+            cur = self.conn.cursor()
             if len(self.data)>0:
                 query = (stype,sid,total,invoice,vat,labour,self.disd,paid,dateandtime,self.uid,address,paribahan,previousdue,)
-                result = self.cur.execute("INSERT INTO pinvoice(stype,sid,total,invoice,vat,labour,discount,paid,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
+                result = cur.execute("INSERT INTO pinvoice(stype,sid,total,invoice,vat,labour,discount,paid,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
                 self.conn.commit()
                 if result:                   
                     id = result.lastrowid
                     for i in self.data:
                         pid = i["pid"]
                         query2 = (sid,pid,id,i["qtn"],i["buy"],i["sale"],invoice,i["discount_p"],dateandtime,i["wholesale"],self.uid,i["ppercent"],)
-                        dd = self.cur.execute("INSERT INTO purchase(sid,pid,pinvoice_id,qtn,buy_rate,sale_rate,invoice,discount,date,wholesale,uid,discountpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
+                        dd = cur.execute("INSERT INTO purchase(sid,pid,pinvoice_id,qtn,buy_rate,sale_rate,invoice,discount,date,wholesale,uid,discountpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
                         self.conn.commit()
                         purchaseid = dd.lastrowid
-                        result2 = self.cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
+                        result2 = cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
                         data = result2.fetchone()
                         qtns = data[8]
                         qtn2 = float(qtns)+float(i["qtn"])
@@ -233,12 +236,12 @@ class Purchases(QWidget):
                         sale = i["sale"]
                         wholesale=i["wholesale"]
                         hrate=i["hrate"]
-                        self.cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=?,hrate=? WHERE id=?",(buy2,sale,wholesale,qtn2,hrate,pid,))
+                        cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=?,hrate=? WHERE id=?",(buy2,sale,wholesale,qtn2,hrate,pid,))
                         self.conn.commit()
                         query3 = ("Purchase",pid,purchaseid,sid,self.uid,i["buy"],i["qtn"],i["discount_p"],i["ppercent"],)
-                        self.cur.execute("INSERT INTO pledger(type,pid,purcchase_id,sid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
+                        cur.execute("INSERT INTO pledger(type,pid,purcchase_id,sid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
                         self.conn.commit()                        
-                    self.cur.execute("INSERT INTO ppp(type,invoice_id,sid,date,uid)VALUES(?,?,?,?,?)",("PURCHASE",id,sid,dateandtime,self.uid,))
+                    cur.execute("INSERT INTO ppp(type,invoice_id,sid,date,uid)VALUES(?,?,?,?,?)",("PURCHASE",id,sid,dateandtime,self.uid,))
                     self.conn.commit()       
                     QMessageBox.information(None, ("Successful"), ("Data added and saved successfully"),QMessageBox.Ok) 
                    
@@ -252,6 +255,7 @@ class Purchases(QWidget):
                     self.wholesale.setText("0")     
                     self.vatpercent="0"    
                     self.combosupplier.setCurrentText("Suppliers")
+                    cur.close()
     
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not saved try again"),QMessageBox.Ok)        
@@ -291,19 +295,20 @@ class Purchases(QWidget):
             ("All 0 Zero field not be empty minimum 0 is required"),
              QMessageBox.Ok)                   
         else:
+            cur = self.conn.cursor()
             if len(self.data)>0:
                 query = (stype,sid,total,invoice,vat,labour,self.disd,paid,dateandtime,self.uid,address,paribahan,previousdue,)
-                result = self.cur.execute("INSERT INTO pinvoice(stype,sid,total,invoice,vat,labour,discount,paid,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
+                result = cur.execute("INSERT INTO pinvoice(stype,sid,total,invoice,vat,labour,discount,paid,date,uid,area,paribahan,previus_due)VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",query)
                 self.conn.commit()
                 if result:                   
                     id = result.lastrowid
                     for i in self.data:
                         pid = i["pid"]
                         query2 = (sid,pid,id,i["qtn"],i["buy"],i["sale"],invoice,i["discount_p"],dateandtime,i["wholesale"],self.uid,i["ppercent"],)
-                        dd = self.cur.execute("INSERT INTO purchase(sid,pid,pinvoice_id,qtn,buy_rate,sale_rate,invoice,discount,date,wholesale,uid,discountpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
+                        dd = cur.execute("INSERT INTO purchase(sid,pid,pinvoice_id,qtn,buy_rate,sale_rate,invoice,discount,date,wholesale,uid,discountpercent)VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",query2)
                         self.conn.commit()
                         purchaseid = dd.lastrowid
-                        result2 = self.cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
+                        result2 = cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
                         data = result2.fetchone()
                         qtns = data[8]
                         qtn2 = float(qtns)+float(i["qtn"])
@@ -311,19 +316,19 @@ class Purchases(QWidget):
                         sale = i["sale"]
                         wholesale=i["wholesale"]
                         hrate=i["hrate"]
-                        self.cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=?,hrate=? WHERE id=?",(buy2,sale,wholesale,qtn2,hrate,pid,))
+                        cur.execute("UPDATE products SET buyrate=?,salerate=?,wholesale=?,qtn=?,hrate=? WHERE id=?",(buy2,sale,wholesale,qtn2,hrate,pid,))
                         self.conn.commit()
                         query3 = ("Purchase",pid,purchaseid,sid,self.uid,i["buy"],i["qtn"],i["discount_p"],i["ppercent"],)
-                        self.cur.execute("INSERT INTO pledger(type,pid,purcchase_id,sid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
+                        cur.execute("INSERT INTO pledger(type,pid,purcchase_id,sid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
                         self.conn.commit()                          
-                    self.cur.execute("INSERT INTO ppp(type,invoice_id,sid,date,uid)VALUES(?,?,?,?,?)",("PURCHASE",id,sid,dateandtime,self.uid,))
+                    cur.execute("INSERT INTO ppp(type,invoice_id,sid,date,uid)VALUES(?,?,?,?,?)",("PURCHASE",id,sid,dateandtime,self.uid,))
                     self.conn.commit() 
                     QMessageBox.information(None, ("Successful"), ("Data added and saved successfully"),QMessageBox.Ok) 
-                    s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+                    s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
                     setting = s.fetchone()
-                    invoiced = self.cur.execute("SELECT pinvoice.invoice,strftime('%d/%m/%Y',pinvoice.date),supplier.name as sname,pinvoice.vat,supplier.address,supplier.phone,pinvoice.labour,pinvoice.discount,pinvoice.paid,pinvoice.total,supplier.id as sid,pinvoice.previus_due,pinvoice.area,pinvoice.paribahan,pinvoice.status  FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id WHERE pinvoice.invoice=?",(invoice,))   
+                    invoiced = cur.execute("SELECT pinvoice.invoice,strftime('%d/%m/%Y',pinvoice.date),supplier.name as sname,pinvoice.vat,supplier.address,supplier.phone,pinvoice.labour,pinvoice.discount,pinvoice.paid,pinvoice.total,supplier.id as sid,pinvoice.previus_due,pinvoice.area,pinvoice.paribahan,pinvoice.status  FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id WHERE pinvoice.invoice=?",(invoice,))   
                     invoicedata = invoiced.fetchone()
-                    result = self.cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount,purchase.discountpercent FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  WHERE purchase.invoice=?",(invoice,))
+                    result = cur.execute("SELECT purchase.invoice,strftime('%d/%m/%Y',purchase.date),supplier.name as sname,products.name as pname,purchase.buy_rate,purchase.qtn,products.unit,purchase.discount,purchase.discountpercent FROM purchase INNER JOIN supplier ON purchase.sid=supplier.id INNER JOIN products ON purchase.pid=products.id  WHERE purchase.invoice=?",(invoice,))
                     datas = result.fetchall() 
                     value = 0
                     for index, i in enumerate(datas):
@@ -347,6 +352,7 @@ class Purchases(QWidget):
                     self.wholesale.setText("0")  
                     self.combosupplier.setCurrentText("Suppliers")
                     self.vatpercent="0" 
+                    cur.close()
               
                 else:
                     QMessageBox.warning(None, ("Failed"), ("Data not saved try again"),QMessageBox.Ok)        
@@ -486,7 +492,8 @@ class Purchases(QWidget):
     def searchP(self):
         value = self.pv.text()
         if value !="":
-            result = self.cur.execute("SELECT * FROM products WHERE id=? OR barcode=? OR name LIKE ? OR itemcode LIKE ? ",(value,value,"%"+value+"%","%"+value+"%",))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM products WHERE id=? OR barcode=? OR name LIKE ? OR itemcode LIKE ? ",(value,value,"%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.pn.setText(str(data[1]))
@@ -498,6 +505,7 @@ class Purchases(QWidget):
                 self.showstocks.setText(str(data[8]))
                 self.vatpercent=data[9]
                 self.hrate.setText(data[17])
+                cur.close()
                 #playsound('./audio/mixit.mp3') 
             else:
                 self.pn.setText("")  
@@ -523,7 +531,8 @@ class Purchases(QWidget):
     def searchSupplier(self):
         value = self.sv.text()
         if value!="":
-            result = self.cur.execute("SELECT * FROM supplier WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT * FROM supplier WHERE name LIKE ? OR id LIKE ? OR partycode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.sn.setText(data[1])
@@ -531,6 +540,7 @@ class Purchases(QWidget):
                 bal = balsup.bal(data[0])
                 self.previousdue.setText(str(bal))
                 self.saddress.setText(data[6])
+                cur.close()
             else:
                 self.sn.setText("")  
                 self.sid =""  

@@ -55,13 +55,14 @@ class CustomerReturn(QDialog):
     def deletebD(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
+        cur = self.conn.cursor()
         if id==None:
             QMessageBox.warning(None, ("Warning"), ("Please Select Any row column"),QMessageBox.Ok)
         else:
-            data = self.cur.execute("SELECT * FROM sreturn WHERE id=?",(id,))
+            data = cur.execute("SELECT * FROM sreturn WHERE id=?",(id,))
             data1 = data.fetchone()
             qtns = float(data1[4])
-            pro = self.cur.execute("SELECT id,qtn FROM products WHERE id=?",(data1[2],))
+            pro = cur.execute("SELECT id,qtn FROM products WHERE id=?",(data1[2],))
             prodata = pro.fetchone()
             pid = prodata[0]
             qtn = float(prodata[1])
@@ -71,18 +72,21 @@ class CustomerReturn(QDialog):
                 result = self.cur.execute("DELETE FROM sreturn WHERE id=?",(id,))
                 self.conn.commit()
                 if result:
-                    self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(totalqtn,pid,))
+                    cur.execute("UPDATE products SET qtn=? WHERE id=?",(totalqtn,pid,))
                     self.conn.commit()
-                    self.cur.execute("DELETE FROM sss WHERE return_id=?",(id,))
+                    cur.execute("DELETE FROM sss WHERE return_id=?",(id,))
                     self.conn.commit()     
-                    self.cur.execute("DELETE FROM pledger WHERE sreturn_id=?",(id,))
+                    cur.execute("DELETE FROM pledger WHERE sreturn_id=?",(id,))
                     self.conn.commit()                                     
                     self.loadDa()
                     QMessageBox.information(None, ("Success"), ("Sales Return Delete success"),QMessageBox.Ok)   
                 else:
-                    QMessageBox.information(None, ("Failed"), ("Sales Return Delete Failed"),QMessageBox.Ok)      
+                    QMessageBox.information(None, ("Failed"), ("Sales Return Delete Failed"),QMessageBox.Ok)  
+        cur.close()            
+
     def loadDa(self):
-        result = self.cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id ORDER BY sreturn.id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id ORDER BY sreturn.id DESC")
         data = result.fetchall()
         self.tableWidget.setRowCount(len(data))
         for index,i in enumerate(data):
@@ -100,13 +104,15 @@ class CustomerReturn(QDialog):
             self.tableWidget.setItem(index,6,QTableWidgetItem(i[4]))
             self.tableWidget.setItem(index,7,QTableWidgetItem(i[8]))
             self.tableWidget.setItem(index,8,QTableWidgetItem(i[7]))
+        cur.close()    
 
     def searchD(self):
         sv = self.searchv_2.text()
+        cur = self.conn.cursor()
         if sv=="":
             a=0
         else:
-            result = self.cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ?",("%"+sv+"%","%"+sv+"%",))
+            result = cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ?",("%"+sv+"%","%"+sv+"%",))
             data = result.fetchall()
             self.tableWidget.setRowCount(len(data))
             for index,i in enumerate(data):
@@ -124,6 +130,7 @@ class CustomerReturn(QDialog):
                 self.tableWidget.setItem(index,6,QTableWidgetItem(i[4]))
                 self.tableWidget.setItem(index,7,QTableWidgetItem(i[8]))   
                 self.tableWidget.setItem(index,8,QTableWidgetItem(i[7]))
+        cur.close()        
 
     def loadDataDate(self):    
         sv = self.searchv_2.text()
@@ -135,8 +142,9 @@ class CustomerReturn(QDialog):
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime 
+        cur = self.conn.cursor()
         if sv=="":
-            result = self.cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id WHERE sreturn.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id WHERE sreturn.date BETWEEN ? AND ?",(fromd,tod,))
             data = result.fetchall()
             self.tableWidget.setRowCount(len(data))
             for index,i in enumerate(data):
@@ -155,7 +163,7 @@ class CustomerReturn(QDialog):
                 self.tableWidget.setItem(index,7,QTableWidgetItem(i[8])) 
                 self.tableWidget.setItem(index,8,QTableWidgetItem(i[7]))            
         else:
-            result = self.cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ? and sreturn.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT sreturn.id,sreturn.price,sreturn.qtn,sreturn.discount,sreturn.paid,products.unit,products.name,strftime('%d/%m/%Y',sreturn.date),users.name FROM sreturn INNER JOIN products ON sreturn.pid=products.id LEFT JOIN users ON sreturn.uid=users.id WHERE products.name LIKE ? OR products.id LIKE ? and sreturn.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%",fromd,tod,))
             data = result.fetchall()
             self.tableWidget.setRowCount(len(data))
             for index,i in enumerate(data):
@@ -173,6 +181,7 @@ class CustomerReturn(QDialog):
                 self.tableWidget.setItem(index,6,QTableWidgetItem(i[4]))
                 self.tableWidget.setItem(index,7,QTableWidgetItem(i[8])) 
                 self.tableWidget.setItem(index,8,QTableWidgetItem(i[7])) 
+        cur.close()        
 
     def submitB(self):
         qtn = self.qtn.text()
@@ -184,6 +193,7 @@ class CustomerReturn(QDialog):
         date_current = self.dateEdit.date() 
         date = date_current.toString("yyyy-MM-dd")
         dateandtime = date+" "+currenttime        
+        cur = self.conn.cursor()
         if self.cid=="":
             QMessageBox.warning(None, ("Warning"), ("Customer is required"),QMessageBox.Ok)
         elif self.pid=="":
@@ -195,7 +205,7 @@ class CustomerReturn(QDialog):
         elif paid=="":
             QMessageBox.warning(None, ("Warning"), ("Paid from cash not be  Empty"),QMessageBox.Ok) 
         else:
-            pdata = self.cur.execute("SELECT id,qtn FROM products WHERE id=?",(self.pid,))
+            pdata = cur.execute("SELECT id,qtn FROM products WHERE id=?",(self.pid,))
             pdata2 = pdata.fetchone()
             pid = pdata2[0]
             qtnp = float(pdata2[1])
@@ -203,16 +213,16 @@ class CustomerReturn(QDialog):
             pp = self.selectPercentPro()
             if pp=="1":
                 query = (self.cid,self.pid,sale,qtn,self.ppercentamount,paid,dateandtime,self.uid,discount_p,)
-                result = self.cur.execute("INSERT INTO sreturn(cid,pid,price,qtn,discount,paid,date,uid,discount_percent) VALUES(?,?,?,?,?,?,?,?,?)",query) 
+                result = cur.execute("INSERT INTO sreturn(cid,pid,price,qtn,discount,paid,date,uid,discount_percent) VALUES(?,?,?,?,?,?,?,?,?)",query) 
                 self.conn.commit()     
                 if result:
                     id = result.lastrowid
-                    self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(totalqtn,pid,))   
+                    cur.execute("UPDATE products SET qtn=? WHERE id=?",(totalqtn,pid,))   
                     self.conn.commit()  
-                    self.cur.execute("INSERT INTO sss(type,return_id,cid,date,uid)VALUES(?,?,?,?,?)",("RETURN",id,self.cid,dateandtime,self.uid,))
+                    cur.execute("INSERT INTO sss(type,return_id,cid,date,uid)VALUES(?,?,?,?,?)",("RETURN",id,self.cid,dateandtime,self.uid,))
                     self.conn.commit()  
                     query3 = ("Sales Return",self.pid,id,self.cid,self.uid,sale,qtn,self.ppercentamount,discount_p,)
-                    self.cur.execute("INSERT INTO pledger(type,pid,sreturn_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
+                    cur.execute("INSERT INTO pledger(type,pid,sreturn_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
                     self.conn.commit()                     
                     self.refreshD()
                     self.loadDa()
@@ -221,22 +231,23 @@ class CustomerReturn(QDialog):
                     QMessageBox.information(None, ("Failed"), ("Sales Return Failed"),QMessageBox.Ok)    
             else:
                 query = (self.cid,self.pid,sale,qtn,discount_p,paid,dateandtime,self.uid,"0",)
-                result = self.cur.execute("INSERT INTO sreturn(cid,pid,price,qtn,discount,paid,date,uid,discount_percent) VALUES(?,?,?,?,?,?,?,?,?)",query) 
+                result = cur.execute("INSERT INTO sreturn(cid,pid,price,qtn,discount,paid,date,uid,discount_percent) VALUES(?,?,?,?,?,?,?,?,?)",query) 
                 self.conn.commit()     
                 if result:
                     id = result.lastrowid
-                    self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(totalqtn,pid,))   
+                    cur.execute("UPDATE products SET qtn=? WHERE id=?",(totalqtn,pid,))   
                     self.conn.commit()  
-                    self.cur.execute("INSERT INTO sss(type,return_id,cid,date,uid)VALUES(?,?,?,?,?)",("RETURN",id,self.cid,dateandtime,self.uid,))
+                    cur.execute("INSERT INTO sss(type,return_id,cid,date,uid)VALUES(?,?,?,?,?)",("RETURN",id,self.cid,dateandtime,self.uid,))
                     self.conn.commit()  
                     query3 = ("Sales Return",self.pid,id,self.cid,self.uid,sale,qtn,discount_p,"0",)
-                    self.cur.execute("INSERT INTO pledger(type,pid,sreturn_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
+                    cur.execute("INSERT INTO pledger(type,pid,sreturn_id,cid,uid,price,qtn,dicount,discount_percent)VALUES(?,?,?,?,?,?,?,?,?)",query3)
                     self.conn.commit()                     
                     self.refreshD()
                     self.loadDa()
                     QMessageBox.information(None, ("Success"), ("Sales Return success"),QMessageBox.Ok)   
                 else:
-                    QMessageBox.information(None, ("Failed"), ("Sales Return Failed"),QMessageBox.Ok)                          
+                    QMessageBox.information(None, ("Failed"), ("Sales Return Failed"),QMessageBox.Ok)   
+            cur.close()                               
 
     def refreshD(self):
         self.pn.setText("")  
@@ -325,6 +336,7 @@ class CustomerReturn(QDialog):
 
     def searchP(self):
         value = self.pv.text()
+        cur = self.conn.cursor()
         if value=="":
             value = value
             self.pn.setText("")  
@@ -336,7 +348,7 @@ class CustomerReturn(QDialog):
             self.wholesalep="0"
             self.ppercentamount="0"
         else:
-            result = self.cur.execute("SELECT * FROM products WHERE name LIKE ? OR id LIKE ? OR barcode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
+            result = cur.execute("SELECT * FROM products WHERE name LIKE ? OR id LIKE ? OR barcode LIKE ? ",("%"+value+"%","%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.pn.setText(data[1])
@@ -367,12 +379,14 @@ class CustomerReturn(QDialog):
                 self.discount_p.setText("0")
                 self.paid.setText("0")
                 self.ppercentamount="0"
+        cur.close()        
 
 
     def searchCustomer(self):
         value = self.sv.text()
+        cur = self.conn.cursor()
         if value!="":
-            result = self.cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? ",("%"+value+"%","%"+value+"%",))
+            result = cur.execute("SELECT * FROM customer WHERE name LIKE ? OR id LIKE ? ",("%"+value+"%","%"+value+"%",))
             data = result.fetchone()
             if data:
                 self.cn.setText(data[1])
@@ -385,5 +399,6 @@ class CustomerReturn(QDialog):
                 self.cid ="" 
                 self.mobile.setText("") 
                 self.cdue.setText("")
+        cur.close()        
 
 

@@ -116,8 +116,8 @@ class AllReport(QDialog):
         date_current = self.todover.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime   
-
-        result = self.cur.execute("SELECT pinvoice.invoice,strftime('%d/%m/%Y',pinvoice.date),supplier.name as sname,pinvoice.vat,pinvoice.labour,pinvoice.discount,pinvoice.paid,pinvoice.total FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id  WHERE pinvoice.date BETWEEN ? AND ?",(fromd,tod,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT pinvoice.invoice,strftime('%d/%m/%Y',pinvoice.date),supplier.name as sname,pinvoice.vat,pinvoice.labour,pinvoice.discount,pinvoice.paid,pinvoice.total FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id  WHERE pinvoice.date BETWEEN ? AND ?",(fromd,tod,))
         data = result.fetchall()
         totalp = 0
         duep = 0
@@ -130,7 +130,7 @@ class AllReport(QDialog):
             totalp+=float(total)
             paidp+=float(paid)       
         self.totalap.setText(str(totalp))
-        pr = self.cur.execute("SELECT preturn.id,strftime('%d/%m/%Y',preturn.date),supplier.name as sname,products.name as pname,preturn.price,preturn.qtn,products.unit,preturn.discount,preturn.paid FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id INNER JOIN products ON preturn.pid=products.id  WHERE preturn.date BETWEEN ? AND ?",(fromd,tod,))
+        pr = cur.execute("SELECT preturn.id,strftime('%d/%m/%Y',preturn.date),supplier.name as sname,products.name as pname,preturn.price,preturn.qtn,products.unit,preturn.discount,preturn.paid FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id INNER JOIN products ON preturn.pid=products.id  WHERE preturn.date BETWEEN ? AND ?",(fromd,tod,))
         prdata = pr.fetchall()
         prtotal =0
         prpaid =0
@@ -139,7 +139,7 @@ class AllReport(QDialog):
             qtn = float(i[5])
             prtotal += price*qtn-float(i[7])
             prpaid+=float(i[8])
-        result = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id  WHERE sinvoice.date BETWEEN ? AND ?",(fromd,tod,))
+        result = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id  WHERE sinvoice.date BETWEEN ? AND ?",(fromd,tod,))
         data2 = result.fetchall()
         totalps = 0
         dueps = 0
@@ -152,7 +152,7 @@ class AllReport(QDialog):
             totalps+=float(total)
             paidps+=float(paid)            
         self.totalsp.setText(str(totalps))
-        srd = self.cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id WHERE sreturn.date BETWEEN ? AND ?",(fromd,tod,))
+        srd = cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id WHERE sreturn.date BETWEEN ? AND ?",(fromd,tod,))
         srdata = srd.fetchall()
         srtotalv =0
         srbuyv =0
@@ -166,7 +166,7 @@ class AllReport(QDialog):
             buy = float(i[9])
             srbuyv+=buy*qtn  
             srpaid+=float(i[8])      
-        self.cur.execute("SELECT id,strftime('%d/%m/%Y',date),type,paytype,des,amount FROM cash WHERE date BETWEEN ? AND ? ",(fromd,tod,))
+        cur.execute("SELECT id,strftime('%d/%m/%Y',date),type,paytype,des,amount FROM cash WHERE date BETWEEN ? AND ? ",(fromd,tod,))
         data3 = self.cur.fetchall()
         amountin =0
         amountout=0
@@ -220,7 +220,7 @@ class AllReport(QDialog):
         self.totalapduep.setText(str(duep))
         self.totalpaids.setText(str(paidps))
         self.totalpaidp.setText(str(paidp))
-        result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  WHERE sales.date BETWEEN ? AND ? ",(fromd,tod,))
+        result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  WHERE sales.date BETWEEN ? AND ? ",(fromd,tod,))
         data = result.fetchall()
         totalv =0
         buyv =0
@@ -242,12 +242,14 @@ class AllReport(QDialog):
         self.sft.setText(str(totalfinal))
         self.sfp.setText(str(totalfinalpaid))
         self.stprofitfinal.setText(str(profitfinalvalue))
+        cur.close() 
 
     def loadOverviewData(self):
-        self.cur.execute("SELECT id,strftime('%d/%m/%Y',date),type,paytype,des,amount FROM cash ORDER BY id DESC")
+        cur = self.conn.cursor()
+        cur.execute("SELECT id,strftime('%d/%m/%Y',date),type,paytype,des,amount FROM cash ORDER BY id DESC")
         data3 = self.cur.fetchall()
 
-        result = self.cur.execute("SELECT pinvoice.invoice,strftime('%d/%m/%Y',pinvoice.date),supplier.name as sname,pinvoice.vat,pinvoice.labour,pinvoice.discount,pinvoice.paid,pinvoice.total FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id  ORDER BY pinvoice.id DESC")
+        result = cur.execute("SELECT pinvoice.invoice,strftime('%d/%m/%Y',pinvoice.date),supplier.name as sname,pinvoice.vat,pinvoice.labour,pinvoice.discount,pinvoice.paid,pinvoice.total FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id  ORDER BY pinvoice.id DESC")
         data = result.fetchall()
         totalp = 0
         duep = 0
@@ -260,7 +262,7 @@ class AllReport(QDialog):
             totalp+=float(total)
             paidp+=float(paid)       
         self.totalap.setText(str(totalp))
-        pr = self.cur.execute("SELECT preturn.id,strftime('%d/%m/%Y',preturn.date),supplier.name as sname,products.name as pname,preturn.price,preturn.qtn,products.unit,preturn.discount,preturn.paid FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id INNER JOIN products ON preturn.pid=products.id  ORDER BY preturn.id DESC")
+        pr = cur.execute("SELECT preturn.id,strftime('%d/%m/%Y',preturn.date),supplier.name as sname,products.name as pname,preturn.price,preturn.qtn,products.unit,preturn.discount,preturn.paid FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id INNER JOIN products ON preturn.pid=products.id  ORDER BY preturn.id DESC")
         prdata = pr.fetchall()
         prtotal =0
         prpaid =0
@@ -269,7 +271,7 @@ class AllReport(QDialog):
             qtn = float(i[5])
             prtotal += price*qtn-float(i[7])
             prpaid+=float(i[8])
-        result = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id  ORDER BY sinvoice.id DESC")
+        result = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id  ORDER BY sinvoice.id DESC")
         data2 = result.fetchall()
         totalps = 0
         dueps = 0
@@ -282,7 +284,7 @@ class AllReport(QDialog):
             totalps+=float(total)
             paidps+=float(paid)            
         self.totalsp.setText(str(totalps))
-        srd = self.cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id ")
+        srd = cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id ")
         srdata = srd.fetchall()
         srtotalv =0
         srbuyv =0
@@ -348,7 +350,7 @@ class AllReport(QDialog):
         self.offrecieve.setText(str(officialin))       
         self.offout.setText(str(officialout)) 
 
-        result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  ORDER BY sales.id DESC")
+        result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  ORDER BY sales.id DESC")
         data = result.fetchall()
         totalv =0
         buyv =0
@@ -370,6 +372,7 @@ class AllReport(QDialog):
         self.sft.setText(str(totalfinal))
         self.sfp.setText(str(totalfinalpaid))
         self.stprofitfinal.setText(str(profitfinalvalue))
+        cur.close()
 
 
     def loadofficialall(self):
@@ -388,8 +391,9 @@ class AllReport(QDialog):
         date_current = self.tod_5.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime     
+        cur = self.conn.cursor()
         if sv=="":      
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
             result=result.fetchall()
             self.officialpay.setRowCount(len(result))
             valuein = 0
@@ -414,7 +418,7 @@ class AllReport(QDialog):
             self.opayshowout.setText(str(valueout)) 
             self.opayshowin.setText(str(valuein))
         else:
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%",fromd,tod,))
             result=result.fetchall()
             self.officialpay.setRowCount(len(result))
             valuein = 0
@@ -437,11 +441,13 @@ class AllReport(QDialog):
                 self.officialpay.setItem(index,8,QTableWidgetItem(i[9]))                
             self.opayshowout.setText(str(valueout)) 
             self.opayshowin.setText(str(valuein))
+        cur.close()    
 
     def officialspaySearch(self):
         sv = self.svop.text()
+        cur = self.conn.cursor()
         if sv!="":
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ?",("%"+sv+"%",))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' and account.name LIKE ?",("%"+sv+"%",))
             result=result.fetchall()
             self.officialpay.setRowCount(len(result))
             valuein = 0
@@ -465,9 +471,11 @@ class AllReport(QDialog):
 
             self.opayshowout.setText(str(valueout)) 
             self.opayshowin.setText(str(valuein))
+        cur.close()    
 
     def officialspay(self):
-        result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' ORDER BY cash.id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),account.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' ORDER BY cash.id DESC")
         result=result.fetchall()
         self.officialpay.setRowCount(len(result))
         valuein = 0
@@ -490,6 +498,7 @@ class AllReport(QDialog):
             self.officialpay.setItem(index,8,QTableWidgetItem(i[9]))            
         self.opayshowout.setText(str(valueout)) 
         self.opayshowin.setText(str(valuein))
+        cur.close() 
     
     def viewcustomerdate(self):
         sv = self.svcp.text()
@@ -503,8 +512,9 @@ class AllReport(QDialog):
         date_current = self.tod_2.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime 
+        cur = self.conn.cursor()
         if sv=="":        
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
             result=result.fetchall()
             self.customerpay.setRowCount(len(result))
             value = 0
@@ -522,7 +532,7 @@ class AllReport(QDialog):
                 self.customerpay.setItem(index,8,QTableWidgetItem(i[9]))                
             self.cpayshow.setText(str(value))
         else:
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' and customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' and customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
             result=result.fetchall()
             self.customerpay.setRowCount(len(result))
             value = 0
@@ -539,14 +549,16 @@ class AllReport(QDialog):
                 self.customerpay.setItem(index,7,QTableWidgetItem(i[8]))
                 self.customerpay.setItem(index,8,QTableWidgetItem(i[9]))            
             self.cpayshow.setText(str(value))
+        cur.close()    
 
     def loadallcustomer(self):
         self.cuspay()
 
     def cuspaySearch(self):
         sv = self.svcp.text()
+        cur = self.conn.cursor()
         if sv!="":
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' and customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' and customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
             result=result.fetchall()
             self.customerpay.setRowCount(len(result))
             value = 0
@@ -563,9 +575,11 @@ class AllReport(QDialog):
                 self.customerpay.setItem(index,7,QTableWidgetItem(i[8]))
                 self.customerpay.setItem(index,8,QTableWidgetItem(i[9]))                
             self.cpayshow.setText(str(value)) 
+        cur.close()    
 
     def cuspay(self):
-        result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' ORDER BY cash.id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),customer.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN customer ON cash.cid=customer.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Customer' ORDER BY cash.id DESC")
         result=result.fetchall()
         self.customerpay.setRowCount(len(result))
         value = 0
@@ -582,6 +596,7 @@ class AllReport(QDialog):
             self.customerpay.setItem(index,7,QTableWidgetItem(i[8]))
             self.customerpay.setItem(index,8,QTableWidgetItem(i[9]))
         self.cpayshow.setText(str(value)) 
+        cur.close() 
 
     def supplierpaydate(self):
         sv = self.svsp.text()
@@ -595,8 +610,9 @@ class AllReport(QDialog):
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime 
+        cur = self.conn.cursor()
         if sv=="":
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' AND cash.date BETWEEN ? AND ?",(fromd,tod,))
             result=result.fetchall()
             self.supplierpayment.setRowCount(len(result))
             value = 0
@@ -614,7 +630,7 @@ class AllReport(QDialog):
                 self.supplierpayment.setItem(index,8,QTableWidgetItem(i[9]))                
             self.spayshow.setText(str(value)) 
         else:
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' and supplier.name LIKE ? OR supplier.id LIKE ? OR supplier.partycode LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' and supplier.name LIKE ? OR supplier.id LIKE ? OR supplier.partycode LIKE ? AND cash.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
             result=result.fetchall()
             self.supplierpayment.setRowCount(len(result))
             value = 0
@@ -630,15 +646,17 @@ class AllReport(QDialog):
                 self.supplierpayment.setItem(index,6,QTableWidgetItem(i[7]))
                 self.supplierpayment.setItem(index,7,QTableWidgetItem(i[8]))
                 self.supplierpayment.setItem(index,8,QTableWidgetItem(i[9]))
-            self.spayshow.setText(str(value))                 
+            self.spayshow.setText(str(value))  
+        cur.close()                   
 
     def loadsup(self):
         self.supplierpay()
 
     def supplierpaySearch(self):
         sv = self.svsp.text()
+        cur = self.conn.cursor()
         if sv!="":
-            result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' and supplier.name LIKE ? OR supplier.id LIKE ? OR supplier.partycode LIKE ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+            result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' and supplier.name LIKE ? OR supplier.id LIKE ? OR supplier.partycode LIKE ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
             result=result.fetchall()
             self.supplierpayment.setRowCount(len(result))
             value = 0
@@ -655,9 +673,11 @@ class AllReport(QDialog):
                 self.supplierpayment.setItem(index,7,QTableWidgetItem(i[8]))
                 self.supplierpayment.setItem(index,8,QTableWidgetItem(i[9]))                
             self.spayshow.setText(str(value)) 
+        cur.close()     
 
     def supplierpay(self):
-        result = self.cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' ORDER BY cash.id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT cash.id,strftime('%d/%m/%Y',cash.date),supplier.name,cash.paytype,cash.des,cash.amount,cash.bankname,cash.chqnumber,cash.trxid,users.name FROM cash INNER JOIN supplier ON cash.sid=supplier.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Supplier' ORDER BY cash.id DESC")
         result=result.fetchall()
         self.supplierpayment.setRowCount(len(result))
         value = 0
@@ -673,7 +693,8 @@ class AllReport(QDialog):
             self.supplierpayment.setItem(index,6,QTableWidgetItem(i[7]))
             self.supplierpayment.setItem(index,7,QTableWidgetItem(i[8]))
             self.supplierpayment.setItem(index,8,QTableWidgetItem(i[9]))
-        self.spayshow.setText(str(value)) 
+        self.spayshow.setText(str(value))
+        cur.close() 
 
     def cusAll(self):
         self.customerDue()
@@ -682,8 +703,9 @@ class AllReport(QDialog):
 
     def dueSearchSup(self):
         sv = self.suppliers.text()
+        cur = self.conn.cursor()
         if sv !="":
-            result = self.cur.execute("SELECT id,name,phone FROM supplier WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+            result = cur.execute("SELECT id,name,phone FROM supplier WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
             result=result.fetchall()
             self.supplierdue.setRowCount(len(result))
             value = 0
@@ -694,10 +716,12 @@ class AllReport(QDialog):
                 self.supplierdue.setItem(index,1,QTableWidgetItem(i[1]))
                 self.supplierdue.setItem(index,2,QTableWidgetItem(i[2]))
                 self.supplierdue.setItem(index,3,QTableWidgetItem(str(total)))
-            self.totalduesup.setText(str(value))            
+            self.totalduesup.setText(str(value))
+        cur.close()                
 
     def supplierDue(self):
-        result = self.cur.execute("SELECT id,name,phone FROM supplier ")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,phone FROM supplier ")
         result=result.fetchall()
         self.supplierdue.setRowCount(len(result))
         value = 0
@@ -709,11 +733,13 @@ class AllReport(QDialog):
             self.supplierdue.setItem(index,2,QTableWidgetItem(i[2]))
             self.supplierdue.setItem(index,3,QTableWidgetItem(str(total)))
         self.totalduesup.setText(str(value))  
+        cur.close()
 
     def customerDueSearch(self):
         sv = self.customers.text()
+        cur = self.conn.cursor()
         if sv!="":
-            result = self.cur.execute("SELECT id,name,phone FROM customer WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+            result = cur.execute("SELECT id,name,phone FROM customer WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
             result=result.fetchall()
             self.customerdue.setRowCount(len(result))
             value = 0
@@ -725,9 +751,11 @@ class AllReport(QDialog):
                 self.customerdue.setItem(index,2,QTableWidgetItem(i[2]))
                 self.customerdue.setItem(index,3,QTableWidgetItem(str(total)))
             self.totalduecus.setText(str(value)) 
+        cur.close()    
 
     def customerDue(self):
-        result = self.cur.execute("SELECT id,name,phone FROM customer ")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,phone FROM customer ")
         result=result.fetchall()
         self.customerdue.setRowCount(len(result))
         value = 0
@@ -738,7 +766,8 @@ class AllReport(QDialog):
             self.customerdue.setItem(index,1,QTableWidgetItem(i[1]))
             self.customerdue.setItem(index,2,QTableWidgetItem(i[2]))
             self.customerdue.setItem(index,3,QTableWidgetItem(str(total)))
-        self.totalduecus.setText(str(value))        
+        self.totalduecus.setText(str(value))  
+        cur.close()      
 
 
 

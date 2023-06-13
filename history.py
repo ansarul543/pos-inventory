@@ -20,22 +20,26 @@ class History(QDialog):
         self.deleteb.clicked.connect(self.deleteData)
 
     def loadData(self):
-        result = self.cur.execute("SELECT users.name,users.role,loginhistory.login,loginhistory.logout FROM loginhistory INNER JOIN users  ON loginhistory.uid=users.id ORDER BY loginhistory.id DESC")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT users.name,users.role,loginhistory.login,loginhistory.logout FROM loginhistory INNER JOIN users  ON loginhistory.uid=users.id ORDER BY loginhistory.id DESC")
         self.tableWidget.setRowCount(0)
         for row_number, row_data in enumerate(result):
             self.tableWidget.insertRow(row_number)
             for column_number, data in enumerate(row_data):
                 self.tableWidget.setItem(row_number,
                         column_number, QTableWidgetItem(str(data))) 
+        cur.close()        
 
 
     def deleteData(self):
         if self.role=="Admin":
             reply = QMessageBox.question(None, ("Warning"), ("Do you want to clear all history"),QMessageBox.Yes,QMessageBox.No) 
             if(reply == QMessageBox.Yes):
-                result = self.cur.execute("DELETE FROM loginhistory",)
+                cur = self.conn.cursor()
+                result = cur.execute("DELETE FROM loginhistory",)
                 self.conn.commit()
                 if(result):  
+                    cur.close()
                     self.loadData()
                     QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
                 else:

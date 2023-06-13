@@ -48,32 +48,33 @@ class OfficialAccount(QDialog):
         date_current = self.tod_5.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime   
-
-        result = self.cur.execute("SELECT strftime('%d/%m/%Y',cash.date),cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.accid=? AND cash.date BETWEEN ? AND ?",(self.id,fromd,tod,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT strftime('%d/%m/%Y',cash.date),cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.accid=? AND cash.date BETWEEN ? AND ?",(self.id,fromd,tod,))
         result=result.fetchall()
 
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()   
 
-        acc = self.cur.execute("SELECT * FROM account WHERE id=? ",(self.id,))
+        acc = cur.execute("SELECT * FROM account WHERE id=? ",(self.id,))
         account = acc.fetchone()
             
         with open("html/officialledger.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=tod,ledger=result,account=account,setting=setting))        
-
+        cur.close()
 
     def officialspay(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
-        result = self.cur.execute("SELECT strftime('%d/%m/%Y',cash.date),cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.accid=? ",(self.id,))
+        result = cur.execute("SELECT strftime('%d/%m/%Y',cash.date),cash.paytype,cash.des,cash.amount,users.name FROM cash INNER JOIN account ON cash.accid=account.id LEFT JOIN users ON cash.uid=users.id WHERE cash.type='Official' AND cash.accid=? ",(self.id,))
         result=result.fetchall()
 
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()   
         
-        acc = self.cur.execute("SELECT * From account WHERE id=? ",(self.id,))
+        acc = cur.execute("SELECT * From account WHERE id=? ",(self.id,))
         account = acc.fetchone()
             
         with open("html/officialledger.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',ledger=result,account=account,setting=setting))     
-    
+        cur.close()

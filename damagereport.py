@@ -44,7 +44,8 @@ class DamageReport(QDialog):
 
     def viewDate(self):
         sv = self.searchv.text() 
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         time = QTime.currentTime()
         currenttime = '23:58:00'
@@ -55,38 +56,43 @@ class DamageReport(QDialog):
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime    
         if sv=="":
-            result = self.cur.execute("SELECT strftime('%d/%m/%Y',damage.date),products.name as pname,damage.qtn,products.unit,products.buyrate  FROM damage INNER JOIN products ON damage.pid=products.id  WHERE damage.date BETWEEN ? AND ? ORDER BY damage.id DESC",(fromd,tod,))
+            result = cur.execute("SELECT strftime('%d/%m/%Y',damage.date),products.name as pname,damage.qtn,products.unit,products.buyrate  FROM damage INNER JOIN products ON damage.pid=products.id  WHERE damage.date BETWEEN ? AND ? ORDER BY damage.id DESC",(fromd,tod,))
             data = result.fetchall()   
             with open("html/damageitem.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,name=""))
         else:
-            result = self.cur.execute("SELECT strftime('%d/%m/%Y',damage.date),products.name as pname,damage.qtn,products.unit,products.buyrate  FROM damage  INNER JOIN products ON damage.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR products.itemcode LIKE ? and damage.date BETWEEN ? AND ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT strftime('%d/%m/%Y',damage.date),products.name as pname,damage.qtn,products.unit,products.buyrate  FROM damage  INNER JOIN products ON damage.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR products.itemcode LIKE ? and damage.date BETWEEN ? AND ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
             data = result.fetchall()   
             with open("html/damageitem.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,name=""))
+        cur.close()
 
     def loadData(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         result = self.cur.execute("SELECT strftime('%d/%m/%Y',damage.date),products.name as pname,damage.qtn,products.unit,products.buyrate FROM damage INNER JOIN products ON damage.pid=products.id  ORDER BY damage.id DESC")
         data = result.fetchall()   
         with open("html/damageitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,name="All damage Record"))
+        cur.close()
 
     def loadDataEmpty(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         with open("html/damageitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=[],name=" "))
-
+        cur.close()
 
     def search(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT strftime('%d/%m/%Y',damage.date),products.name as pname,damage.qtn,products.unit,products.buyrate  FROM damage  INNER JOIN products ON damage.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR products.itemcode LIKE ? ORDER BY damage.id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        result = cur.execute("SELECT strftime('%d/%m/%Y',damage.date),products.name as pname,damage.qtn,products.unit,products.buyrate  FROM damage  INNER JOIN products ON damage.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR products.itemcode LIKE ? ORDER BY damage.id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         data = result.fetchall()   
         with open("html/damageitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,name="All damage Search Record "+sv))
-
+        cur.close()
 

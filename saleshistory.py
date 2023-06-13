@@ -44,7 +44,8 @@ class SalesHistory(QDialog):
 
     def viewDate(self):
         sv = self.searchv.text() 
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         time = QTime.currentTime()
         currenttime = '23:58:00'
@@ -55,7 +56,7 @@ class SalesHistory(QDialog):
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime    
         if sv=="":
-            result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate  FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  WHERE sales.date BETWEEN ? AND ? ORDER BY sales.id DESC",(fromd,tod,))
+            result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate  FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  WHERE sales.date BETWEEN ? AND ? ORDER BY sales.id DESC",(fromd,tod,))
             data = result.fetchall()
             totalv =0
             buyv =0
@@ -73,7 +74,7 @@ class SalesHistory(QDialog):
             with open("html/salesitem.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name=""))
         else:
-            result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate  FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? and sales.date BETWEEN ? AND ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate  FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? and sales.date BETWEEN ? AND ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
             data = result.fetchall()
             totalv =0
             buyv =0
@@ -90,11 +91,13 @@ class SalesHistory(QDialog):
             profit = totalv-buyv     
             with open("html/salesitem.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name=""))
+        cur.close()
 
     def loadData(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
-        result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  ORDER BY sales.id DESC")
+        result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id  ORDER BY sales.id DESC")
         data = result.fetchall()
         totalv =0
         buyv =0
@@ -111,9 +114,11 @@ class SalesHistory(QDialog):
         profit = totalv-buyv     
         with open("html/salesitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name="All Sales Record"))
+        cur.close()
 
     def loadDataEmpty(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         data=[]
         totalv =0
@@ -121,13 +126,14 @@ class SalesHistory(QDialog):
         profit = totalv-buyv     
         with open("html/salesitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name=" "))
-
+        cur.close()
 
     def search(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate  FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? ORDER BY sales.id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,products.buyrate  FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? ORDER BY sales.id DESC",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         data = result.fetchall()
         totalv =0
         buyv =0
@@ -144,6 +150,6 @@ class SalesHistory(QDialog):
         profit = totalv-buyv     
         with open("html/salesitem.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name="All Sales Search Record "+sv))
-
+        cur.close()
 
 

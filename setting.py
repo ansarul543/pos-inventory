@@ -18,7 +18,8 @@ class Setting(QDialog):
         self.updateb.clicked.connect(self.updateData)
 
     def loadData(self):
-        result = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         if(result):
             data = result.fetchone()
             self.name.setText(data[1])
@@ -30,6 +31,7 @@ class Setting(QDialog):
             self.msg.setText(data[7])
         else:
             self.close()    
+        cur.close()    
 
     def updateData(self):
         name = self.name.text()
@@ -39,7 +41,7 @@ class Setting(QDialog):
         website = self.website.text()
         address = self.address.toPlainText()
         msg = self.msg.toPlainText()
-
+        cur = self.conn.cursor()
         if(self.uid==""):
             QMessageBox.warning(None, ("Required"), 
             ("Login expired please login again after close window"),
@@ -50,7 +52,7 @@ class Setting(QDialog):
              QMessageBox.Cancel)  
         else:    
             try:
-                result = self.cur.execute("UPDATE settings SET name=?,phone=?,email=?,website=?,licence=?,address=?,msg=? WHERE id=?",(name,phone,email,website,licence,address,msg,1,))
+                result = cur.execute("UPDATE settings SET name=?,phone=?,email=?,website=?,licence=?,address=?,msg=? WHERE id=?",(name,phone,email,website,licence,address,msg,1,))
                 self.conn.commit()
                 if(result):
                     self.loadData()
@@ -59,5 +61,5 @@ class Setting(QDialog):
                     QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel)       
             except:
                 QMessageBox.warning(None, ("Failed"), ("Data not updated Database Error "),QMessageBox.Cancel)                                
-
+        cur.close()
 

@@ -60,7 +60,8 @@ class CustomerLedger(QDialog):
     def dueSearchCus(self):
         sv = self.suppliers.text()
         if sv!="":
-            result = self.cur.execute("SELECT id,name,phone,address FROM customer WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+            cur = self.conn.cursor()
+            result = cur.execute("SELECT id,name,phone,address FROM customer WHERE id LIKE ? OR name LIKE ? OR partycode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%",))
             result=result.fetchall()
             self.customerdue.setRowCount(len(result))
             for index, i in enumerate(result):
@@ -70,9 +71,11 @@ class CustomerLedger(QDialog):
                 self.customerdue.setItem(index,3,QTableWidgetItem(i[3]))  
                 bal = balcus.bal(i[0])   
                 self.customerdue.setItem(index,4,QTableWidgetItem(str(bal)))       
+            cur.close()
 
     def customerDue(self):
-        result = self.cur.execute("SELECT id,name,phone,address FROM customer ")
+        cur = self.conn.cursor()
+        result = cur.execute("SELECT id,name,phone,address FROM customer ")
         result=result.fetchall()
         self.customerdue.setRowCount(len(result))
         for index, i in enumerate(result):
@@ -82,6 +85,7 @@ class CustomerLedger(QDialog):
             self.customerdue.setItem(index,3,QTableWidgetItem(i[3]))
             bal = balcus.bal(i[0])   
             self.customerdue.setItem(index,4,QTableWidgetItem(str(bal))) 
+        cur.close()    
  
 
        

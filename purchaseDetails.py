@@ -48,22 +48,23 @@ class PurchaseDetails(QDialog):
 
     def searchV(self):
             sv = self.sv.text()
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            cur = self.conn.cursor()
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
             if sv!="":
                 sql="""SELECT pinvoice.id,pinvoice.invoice,pinvoice.stype,pinvoice.paid,pinvoice.total,
                 strftime('%d/%m/%Y',pinvoice.date) as date,supplier.name FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id
                 WHERE pinvoice.invoice LIKE ? OR supplier.name LIKE ?"""
-                da = self.cur.execute(sql,("%"+sv+"%","%"+sv+"%",))
+                da = cur.execute(sql,("%"+sv+"%","%"+sv+"%",))
                 result = da.fetchall()
 
                 sql="""SELECT cash.id,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,supplier.name FROM cash 
                 INNER JOIN supplier ON cash.sid=supplier.id WHERE cash.type='Supplier' and supplier.name LIKE ? """
-                cash = self.cur.execute(sql,("%"+sv+"%",))
+                cash = cur.execute(sql,("%"+sv+"%",))
                 cashs = cash.fetchall()
                 sql="""SELECT preturn.id,preturn.price,preturn.qtn,preturn.discount,strftime('%d/%m/%Y',preturn.date) as date,preturn.paid ,supplier.name
                 FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id WHERE supplier.name LIKE ? """
-                retur = self.cur.execute(sql,("%"+sv+"%",))
+                retur = cur.execute(sql,("%"+sv+"%",))
                 repro = retur.fetchall()
                 total =0
                 paid = 0
@@ -82,24 +83,26 @@ class PurchaseDetails(QDialog):
                     debit += float(i[1])*float(i[2])-float(i[3])
                 with open("html/purchaseDetails.html") as file:
                     self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=tod,setting=setting,invoice=result,cash=cashs,repro=repro,total=total,paid=paid,returnamount=returnamount,debit=debit))
+            cur.close()
 
     def detailsLoad(self):
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            cur = self.conn.cursor()
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
 
             sql="""SELECT pinvoice.id,pinvoice.invoice,pinvoice.stype,pinvoice.paid,pinvoice.total,
             strftime('%d/%m/%Y',pinvoice.date) as date,supplier.name FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id"""
-            da = self.cur.execute(sql)
+            da = cur.execute(sql)
             result = da.fetchall()
 
             sql="""SELECT cash.id,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,supplier.name FROM cash 
             INNER JOIN supplier ON cash.sid=supplier.id WHERE cash.type='Supplier' """
-            cash = self.cur.execute(sql)
+            cash = cur.execute(sql)
             cashs = cash.fetchall()
             print(cashs)
             sql="""SELECT preturn.id,preturn.price,preturn.qtn,preturn.discount,strftime('%d/%m/%Y',preturn.date) as date,preturn.paid ,supplier.name
             FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id """
-            retur = self.cur.execute(sql)
+            retur = cur.execute(sql)
             repro = retur.fetchall()
             total =0
             paid = 0
@@ -118,6 +121,7 @@ class PurchaseDetails(QDialog):
                 debit += float(i[1])*float(i[2])-float(i[3])
             with open("html/purchaseDetails.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=tod,setting=setting,invoice=result,cash=cashs,repro=repro,total=total,paid=paid,returnamount=returnamount,debit=debit))
+            cur.close()
 
     def dateLoad(self):
         sv = self.sv.text()
@@ -130,8 +134,8 @@ class PurchaseDetails(QDialog):
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime                  
-
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         if sv=="":
             sql="""SELECT pinvoice.id,pinvoice.invoice,pinvoice.stype,pinvoice.paid,pinvoice.total,
@@ -142,12 +146,12 @@ class PurchaseDetails(QDialog):
 
             sql="""SELECT cash.id,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,supplier.name FROM cash 
             INNER JOIN supplier ON cash.sid=supplier.id WHERE cash.type='Supplier' and cash.date BETWEEN ? AND ? """
-            cas = self.cur.execute(sql,(fromd,tod,))
+            cas = cur.execute(sql,(fromd,tod,))
             cash = cas.fetchall()
 
             sql="""SELECT preturn.id,preturn.price,preturn.qtn,preturn.discount,strftime('%d/%m/%Y',preturn.date) as date,preturn.paid ,supplier.name
             FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id WHERE preturn.date BETWEEN ? AND ? """
-            retur = self.cur.execute(sql,(fromd,tod,))
+            retur = cur.execute(sql,(fromd,tod,))
             repro = retur.fetchall()
             total =0
             paid = 0
@@ -168,15 +172,15 @@ class PurchaseDetails(QDialog):
             sql="""SELECT pinvoice.id,pinvoice.invoice,pinvoice.stype,pinvoice.paid,pinvoice.total,
             strftime('%d/%m/%Y',pinvoice.date) as date,supplier.name FROM pinvoice INNER JOIN supplier ON pinvoice.sid=supplier.id
              WHERE pinvoice.invoice LIKE ? OR supplier.name LIKE ? and pinvoice.date BETWEEN ? AND ? """
-            da = self.cur.execute(sql,("%"+sv+"%","%"+sv+"%",fromd,tod,))
+            da = cur.execute(sql,("%"+sv+"%","%"+sv+"%",fromd,tod,))
             result = da.fetchall()
             sql="""SELECT cash.id,cash.paytype,cash.amount,cash.des,strftime('%d/%m/%Y',cash.date) as date,supplier.name FROM cash 
             INNER JOIN supplier ON cash.sid=supplier.id WHERE cash.type='Supplier' and supplier.name LIKE ? and cash.date BETWEEN ? AND ? """
-            cas = self.cur.execute(sql,("%"+sv+"%",fromd,tod,))
+            cas = cur.execute(sql,("%"+sv+"%",fromd,tod,))
             cash = cas.fetchall()
             sql="""SELECT preturn.id,preturn.price,preturn.qtn,preturn.discount,strftime('%d/%m/%Y',preturn.date) as date,preturn.paid ,supplier.name
             FROM preturn INNER JOIN supplier ON preturn.sid=supplier.id WHERE supplier.name LIKE ? and preturn.date BETWEEN ? AND ? """
-            retur = self.cur.execute(sql,("%"+sv+"%",fromd,tod,))
+            retur = cur.execute(sql,("%"+sv+"%",fromd,tod,))
             repro = retur.fetchall()
             total =0
             paid = 0
@@ -193,7 +197,7 @@ class PurchaseDetails(QDialog):
                 debit += float(i[1])*float(i[2])-float(i[3])
             with open("html/purchaseDetails.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,invoice=result,cash=cash,repro=repro,total=total,paid=paid,returnamount=returnamount,debit=debit))
-                              
+        cur.close()                      
 
 
        

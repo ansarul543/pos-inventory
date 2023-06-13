@@ -48,8 +48,9 @@ class SalesInvoice(QDialog):
     def refreshD(self):
         self.toDate()
 
-    def loadData(self):      
-        result = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id ORDER BY sinvoice.id DESC")
+    def loadData(self):     
+        cur = self.conn.cursor() 
+        result = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id ORDER BY sinvoice.id DESC")
         data = result.fetchall()
         self.tableWidget.setRowCount(len(data))
         totalp = 0
@@ -71,6 +72,7 @@ class SalesInvoice(QDialog):
             self.tableWidget.setItem(index,6,QTableWidgetItem(i[8]))
             self.tableWidget.setItem(index,7,QTableWidgetItem(i[9]))
         self.total.setText(str(totalp))
+        cur.close() 
                
 
     def toDate(self):
@@ -78,8 +80,9 @@ class SalesInvoice(QDialog):
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
         fromd = date
-        tod = date+" "+currenttime           
-        result = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.date BETWEEN ? AND ?",(fromd,tod,))
+        tod = date+" "+currenttime    
+        cur = self.conn.cursor()       
+        result = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.date BETWEEN ? AND ?",(fromd,tod,))
         data = result.fetchall()
         self.tableWidget.setRowCount(len(data))
         totalp = 0
@@ -101,6 +104,7 @@ class SalesInvoice(QDialog):
             self.tableWidget.setItem(index,6,QTableWidgetItem(i[8]))
             self.tableWidget.setItem(index,7,QTableWidgetItem(i[9]))
         self.total.setText(str(totalp))
+        cur.close()
 
 
     def viewDate(self):
@@ -114,9 +118,10 @@ class SalesInvoice(QDialog):
 
         date_current = self.tod.date() 
         date = date_current.toString("yyyy-MM-dd")
-        tod = date+" "+currenttime      
+        tod = date+" "+currenttime    
+        cur = self.conn.cursor()  
         if sv=="":
-            result = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.date BETWEEN ? AND ?",(fromd,tod,))
             data = result.fetchall()
             self.tableWidget.setRowCount(len(data))
             totalp = 0
@@ -139,7 +144,7 @@ class SalesInvoice(QDialog):
                 self.tableWidget.setItem(index,7,QTableWidgetItem(i[9]))
             self.total.setText(str(totalp))
         else:
-            result = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.invoice LIKE ? OR customer.name LIKE ? OR customer.partycode LIKE ? OR customer.id LIKE ? and sinvoice.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.invoice LIKE ? OR customer.name LIKE ? OR customer.partycode LIKE ? OR customer.id LIKE ? and sinvoice.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
             data = result.fetchall()
             self.tableWidget.setRowCount(len(data))
             totalp = 0
@@ -160,12 +165,14 @@ class SalesInvoice(QDialog):
                 self.tableWidget.setItem(index,5,QTableWidgetItem(str(due)))
                 self.tableWidget.setItem(index,6,QTableWidgetItem(i[8]))
                 self.tableWidget.setItem(index,7,QTableWidgetItem(i[9]))
-            self.total.setText(str(totalp))                
+            self.total.setText(str(totalp)) 
+        cur.close()                   
         
 
     def search(self):
-        sv = self.searchv.text()    
-        result = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.invoice LIKE ? OR customer.name LIKE ? OR customer.partycode LIKE ? OR customer.id LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        sv = self.searchv.text() 
+        cur = self.conn.cursor()   
+        result = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,users.name FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id LEFT JOIN users ON sinvoice.uid=users.id WHERE sinvoice.invoice LIKE ? OR customer.name LIKE ? OR customer.partycode LIKE ? OR customer.id LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         data = result.fetchall()
         self.tableWidget.setRowCount(len(data))
         totalp = 0
@@ -187,55 +194,59 @@ class SalesInvoice(QDialog):
             self.tableWidget.setItem(index,6,QTableWidgetItem(i[8]))
             self.tableWidget.setItem(index,7,QTableWidgetItem(i[9]))
         self.total.setText(str(totalp))
+        cur.close()
           
     
     def deleteData(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
+        cur = self.conn.cursor()
         reply = QMessageBox.question(None, ("Warning"), ("Do you want to delete selected invoice row"),QMessageBox.Yes,QMessageBox.No) 
         if(reply == QMessageBox.Yes and id!=None):
-            sda = self.cur.execute("SELECT total,paid,cid,id FROM sinvoice WHERE invoice=?",(id,))
+            sda = cur.execute("SELECT total,paid,cid,id FROM sinvoice WHERE invoice=?",(id,))
             sdata = sda.fetchone()
             total = float(sdata[0])
             paid = float(sdata[1])
             invoice_i = sdata[3]
             cid = sdata[2]
             due = total-paid
-            result = self.cur.execute("DELETE FROM sinvoice WHERE invoice=?",(id,))
+            result = cur.execute("DELETE FROM sinvoice WHERE invoice=?",(id,))
             self.conn.commit()
-            datas = self.cur.execute("SELECT * FROM sales WHERE invoice=?",(id,))
+            datas = cur.execute("SELECT * FROM sales WHERE invoice=?",(id,))
             datas = datas.fetchall()
             if(result):
                 for i in datas:
                     pid = i[2]
-                    result2 = self.cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
+                    result2 = cur.execute("SELECT * FROM products WHERE id=?",(pid,)) 
                     data = result2.fetchone()
                     qtns = data[8]
                     qtn2 = float(qtns)+float(i[4])
-                    self.cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn2,pid,))
+                    cur.execute("UPDATE products SET qtn=? WHERE id=?",(qtn2,pid,))
                     self.conn.commit()
-                    self.cur.execute("DELETE FROM pledger WHERE sales_id=?",(i[0],))
+                    cur.execute("DELETE FROM pledger WHERE sales_id=?",(i[0],))
                     self.conn.commit()                     
-                self.cur.execute("DELETE FROM sales WHERE invoice=?",(id,)) 
+                cur.execute("DELETE FROM sales WHERE invoice=?",(id,)) 
                 self.conn.commit()  
-                self.cur.execute("DELETE FROM sss WHERE invoice_id=?",(invoice_i,))
+                cur.execute("DELETE FROM sss WHERE invoice_id=?",(invoice_i,))
                 self.conn.commit()                                   
                 self.loadData()   
                 QMessageBox.information(None, ("Successful"), ("Data deleted successfully"),QMessageBox.Ok) 
             else:
                 QMessageBox.information(None, ("Failed"), ("Data not deleted successfully"),QMessageBox.Ok)     
+        cur.close()        
                 
     def printB(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
+        cur = self.conn.cursor()
         if id is None:
             QMessageBox.warning(None, ("Warning"), ("Please select any row to do print"),QMessageBox.Ok)
         else:
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
-            invoice = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,customer.address,customer.phone,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,customer.id as cid,sinvoice.previus_due,sinvoice.area,sinvoice.paribahan,sinvoice.status FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id WHERE sinvoice.invoice=?",(id,))   
+            invoice = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,customer.address,customer.phone,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,customer.id as cid,sinvoice.previus_due,sinvoice.area,sinvoice.paribahan,sinvoice.status FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id WHERE sinvoice.invoice=?",(id,))   
             invoice = invoice.fetchone()
-            result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,sales.vatpercent,sales.discountpercent FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE sales.invoice=?",(id,))
+            result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,sales.vatpercent,sales.discountpercent FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE sales.invoice=?",(id,))
             data = result.fetchall() 
             value = 0
             for index, i in enumerate(data):
@@ -248,18 +259,20 @@ class SalesInvoice(QDialog):
             dialog = QPrintDialog(printer, self)
             if dialog.exec_() == QPrintDialog.Accepted:
                 self.textEdit.print_(printer)
+        cur.close()        
 
     def printData(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)
         id = NewInd.data()
+        cur = self.conn.cursor()
         if id is None:
             QMessageBox.warning(None, ("Warning"), ("Please select any row to do print"),QMessageBox.Ok)
         else:
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
-            invoice = self.cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,customer.address,customer.phone,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,customer.id as cid,sinvoice.previus_due,sinvoice.area,sinvoice.paribahan,sinvoice.status FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id WHERE sinvoice.invoice=?",(id,))   
+            invoice = cur.execute("SELECT sinvoice.invoice,strftime('%d/%m/%Y',sinvoice.date),customer.name as cname,customer.address,customer.phone,sinvoice.vat,sinvoice.labour,sinvoice.discount,sinvoice.paid,sinvoice.total,sinvoice.paytype,customer.id as cid,sinvoice.previus_due,sinvoice.area,sinvoice.paribahan,sinvoice.status FROM sinvoice INNER JOIN customer ON sinvoice.cid=customer.id WHERE sinvoice.invoice=?",(id,))   
             invoice = invoice.fetchone()
-            result = self.cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,sales.vatpercent,sales.discountpercent FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE sales.invoice=?",(id,))
+            result = cur.execute("SELECT sales.invoice,strftime('%d/%m/%Y',sales.date),customer.name as cname,products.name as pname,sales.price,sales.qtn,products.unit,sales.discount,sales.type,sales.vatpercent,sales.discountpercent FROM sales INNER JOIN customer ON sales.cid=customer.id INNER JOIN products ON sales.pid=products.id WHERE sales.invoice=?",(id,))
             data = result.fetchall() 
             value = 0
             for index, i in enumerate(data):
@@ -272,7 +285,9 @@ class SalesInvoice(QDialog):
             printer = QPrinter(QPrinter.HighResolution)
             previewDialog = QPrintPreviewDialog(printer, self)
             previewDialog.paintRequested.connect(self.print_preview)
-            previewDialog.exec_()    
+            previewDialog.exec_() 
+        cur.close()    
+
     def print_preview(self, printer):
         self.textEdit.print_(printer)             
 

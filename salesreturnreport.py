@@ -43,7 +43,8 @@ class SalesReturnHistory(QDialog):
         self.textEdit.print_(printer) 
 
     def viewDate(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         sv = self.searchv.text()
         time = QTime.currentTime()
@@ -55,7 +56,7 @@ class SalesReturnHistory(QDialog):
         date = date_current.toString("yyyy-MM-dd")
         tod = date+" "+currenttime    
         if sv=="":
-            result = self.cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id  WHERE sreturn.date BETWEEN ? AND ?",(fromd,tod,))
+            result = cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id  WHERE sreturn.date BETWEEN ? AND ?",(fromd,tod,))
             data = result.fetchall()
             totalv =0
             buyv =0
@@ -73,7 +74,7 @@ class SalesReturnHistory(QDialog):
             with open("html/salesreturnreport.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name=""))
         else:
-            result = self.cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? and sreturn.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
+            result = cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id  WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? and sreturn.date BETWEEN ? AND ?",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",fromd,tod,))
             data = result.fetchall()
             totalv =0
             buyv =0
@@ -90,9 +91,11 @@ class SalesReturnHistory(QDialog):
             profit = totalv-buyv     
             with open("html/salesreturnreport.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd=fromd,tod=date,setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name=""))
+        cur.close()
 
     def loadDataEmpty(self):
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            cur = self.conn.cursor()
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
             data=[]
             totalv =0
@@ -100,12 +103,13 @@ class SalesReturnHistory(QDialog):
             profit = totalv-buyv     
             with open("html/salesreturnreport.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name=" "))
-
+            cur.close()
 
     def loadData(self):
-            s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+            cur = self.conn.cursor()
+            s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
             setting = s.fetchone()
-            result = self.cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id ")
+            result = cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id ")
             data = result.fetchall()
             totalv =0
             buyv =0
@@ -122,13 +126,14 @@ class SalesReturnHistory(QDialog):
             profit = totalv-buyv     
             with open("html/salesreturnreport.html") as file:
                 self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name="All Sales Return Record"))
-
+            cur.close()
 
     def search(self):
-        s = self.cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
+        cur = self.conn.cursor()
+        s = cur.execute("SELECT * FROM settings WHERE id=? ",(1,))
         setting = s.fetchone()
         sv = self.searchv.text()    
-        result = self.cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
+        result = cur.execute("SELECT sreturn.id,strftime('%d/%m/%Y',sreturn.date),customer.name as cname,products.name as pname,sreturn.price,sreturn.qtn,products.unit,sreturn.discount,sreturn.paid,products.buyrate  FROM sreturn INNER JOIN customer ON sreturn.cid=customer.id INNER JOIN products ON sreturn.pid=products.id WHERE products.name LIKE ? OR products.id LIKE ? OR customer.name LIKE ? OR customer.id LIKE ? OR customer.partycode LIKE ? OR products.itemcode LIKE ? ",("%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%","%"+sv+"%",))
         data = result.fetchall()
         totalv =0
         buyv =0
@@ -145,6 +150,6 @@ class SalesReturnHistory(QDialog):
         profit = totalv-buyv     
         with open("html/salesreturnreport.html") as file:
             self.textEdit.setText(Template(file.read()).render(fromd='',tod='',setting=setting,data=data,profit=profit,buy=buyv,totals=totalv,name="All Sales Return Search Record "+sv))
-
+        cur.close()
 
 
