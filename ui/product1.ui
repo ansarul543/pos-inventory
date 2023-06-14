@@ -402,7 +402,10 @@
 color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
-         <string>Add New</string>
+         <string>Save</string>
+        </property>
+        <property name="shortcut">
+         <string>Return</string>
         </property>
        </widget>
       </item>
@@ -451,22 +454,6 @@ background-color: rgb(249, 255, 240);
        </property>
        <property name="clearButtonEnabled">
         <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="updateb">
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(85, 85, 255);
-color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>Update</string>
        </property>
       </widget>
      </item>

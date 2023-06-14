@@ -12,7 +12,6 @@ class Account(QDialog):
         uic.loadUi('./ui/acc.ui', self)
         self.setWindowIcon(QtGui.QIcon("./images/carti.png"))
         self.setWindowTitle("Official Acount")
-        self.addb.clicked.connect(self.addS)
         self.conn = sqlite3.connect('./database/data.db')
         self.cur = self.conn.cursor()
         self.tableWidget.setHorizontalHeaderLabels(["ID","Account Name","Description","Acc Number","Balance"])
@@ -46,24 +45,23 @@ class Account(QDialog):
             QMessageBox.warning(None, ("Required"), 
             ("Name Required"),
              QMessageBox.Cancel)
-        elif(self.id==""):
-            QMessageBox.warning(None, ("Required"), 
-            ("Data not selected yet Please select data before update"),
-             QMessageBox.Cancel)   
         else:   
-            cur = self.conn.cursor() 
-            result = cur.execute("UPDATE account SET name=?,type=?,desc=?,accnumber=? WHERE id=?",(name,type,desc,acc,self.id,))
-            self.conn.commit()
-            if(result):
-                cur.close()
-                self.loadData()
-                self.id=""
-                self.name.setText("")
-                self.desc.setText("")
-                self.acc.setText(" ")
-                QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+            if self.id !="":
+                cur = self.conn.cursor() 
+                result = cur.execute("UPDATE account SET name=?,type=?,desc=?,accnumber=? WHERE id=?",(name,type,desc,acc,self.id,))
+                self.conn.commit()
+                if(result):
+                    cur.close()
+                    self.loadData()
+                    self.id=""
+                    self.name.setText("")
+                    self.desc.setText("")
+                    self.acc.setText(" ")
+                    QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+                else:
+                    QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel) 
             else:
-                QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel) 
+                self.addS()        
 
     def loadData(self):
         cur = self.conn.cursor()

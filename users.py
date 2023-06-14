@@ -21,58 +21,89 @@ class User(QDialog):
         self.deleteb.clicked.connect(self.deleteData)
         self.tableWidget.doubleClicked.connect(self.ddbclick)
         self.id =""
-        self.updateb.clicked.connect(self.updateData)
 
-    def updateData(self):
-        name = self.name.text()
-        username = self.username.text()
-        phone = self.phone.text()
-        email = self.email.text()
-        password = self.password.text()
-        password2 = generate_password_hash(password, "sha256")
 
-        role = self.selectData()
-        if(self.id==""):
-            QMessageBox.warning(None, ("Required"), 
-            ("Data not selected yet Please select data before update"),
-             QMessageBox.Cancel)  
-        elif(name=="" and username=="" and phone==""):
-            QMessageBox.warning(None, ("Required"), 
-            ("Please Fill name username and phone  Field"),
-             QMessageBox.Cancel)  
+    def addS(self):
+        if self.id !="":
+            name = self.name.text()
+            username = self.username.text()
+            phone = self.phone.text()
+            email = self.email.text()
+            password = self.password.text()
+            password2 = generate_password_hash(password, "sha256")
+
+            role = self.selectData()
+            if(self.id==""):
+                QMessageBox.warning(None, ("Required"), 
+                ("Data not selected yet Please select data before update"),
+                QMessageBox.Cancel)  
+            elif(name=="" and username=="" and phone==""):
+                QMessageBox.warning(None, ("Required"), 
+                ("Please Fill name username and phone  Field"),
+                QMessageBox.Cancel)  
+            else:    
+                if(password):
+                    cur = self.conn.cursor()
+                    result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,password=?,role=? WHERE id=?",(name,username,phone,email,password2,role,self.id,))
+                    self.conn.commit()
+                    if(result):
+                        cur.close()
+                        self.loadData()
+                        self.id=""
+                        self.name.setText("")
+                        self.username.setText("")
+                        self.phone.setText("")
+                        self.email.setText("")
+                        self.password.setText("")
+                        QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+                    else:
+                        QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel)                
+                else:
+                    cur = self.conn.cursor()
+                    result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,role=? WHERE id=?",(name,username,phone,email,role,self.id,))    
+                    self.conn.commit()
+                    if(result):
+                        cur.close()
+                        self.loadData()
+                        self.id=""
+                        self.name.setText("")
+                        self.username.setText("")
+                        self.phone.setText("")
+                        self.email.setText("")
+                        self.password.setText("")
+                        QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+                    else:
+                        QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel) 
         else:    
-            if(password):
+            name = self.name.text()
+            username = self.username.text()
+            phone = self.phone.text()
+            email = self.email.text()
+            password = self.password.text()
+            password2 = generate_password_hash(password, "sha256")
+            role = self.selectData()
+
+            if(name=="" and username=="" and phone=="" and password==""):
+                QMessageBox.warning(None, ("Required"), 
+                ("Please Fill name username and phone and Password Field"),
+                QMessageBox.Cancel) 
+            else:    
                 cur = self.conn.cursor()
-                result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,password=?,role=? WHERE id=?",(name,username,phone,email,password2,role,self.id,))
+                result = cur.execute("INSERT INTO users(name,username,phone,email,password,role)VALUES(?,?,?,?,?,?)",(name,username,phone,email,password2,role,))
                 self.conn.commit()
                 if(result):
                     cur.close()
-                    self.loadData()
-                    self.id=""
                     self.name.setText("")
                     self.username.setText("")
                     self.phone.setText("")
                     self.email.setText("")
                     self.password.setText("")
-                    QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+                    QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok)  
+                    self.loadData()           
                 else:
-                    QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel)                
-            else:
-                cur = self.conn.cursor()
-                result = cur.execute("UPDATE users SET name=?,username=?,phone=?,email=?,role=? WHERE id=?",(name,username,phone,email,role,self.id,))    
-                self.conn.commit()
-                if(result):
-                    cur.close()
                     self.loadData()
-                    self.id=""
-                    self.name.setText("")
-                    self.username.setText("")
-                    self.phone.setText("")
-                    self.email.setText("")
-                    self.password.setText("")
-                    QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
-                else:
-                    QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Cancel) 
+                    QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)  
+
                 
 
 
@@ -108,35 +139,6 @@ class User(QDialog):
                 self.id=data[0]
             cur.close()
 
-    def addS(self):
-        name = self.name.text()
-        username = self.username.text()
-        phone = self.phone.text()
-        email = self.email.text()
-        password = self.password.text()
-        password2 = generate_password_hash(password, "sha256")
-        role = self.selectData()
-
-        if(name=="" and username=="" and phone=="" and password==""):
-            QMessageBox.warning(None, ("Required"), 
-            ("Please Fill name username and phone and Password Field"),
-             QMessageBox.Cancel) 
-        else:    
-            cur = self.conn.cursor()
-            result = cur.execute("INSERT INTO users(name,username,phone,email,password,role)VALUES(?,?,?,?,?,?)",(name,username,phone,email,password2,role,))
-            self.conn.commit()
-            if(result):
-                cur.close()
-                self.name.setText("")
-                self.username.setText("")
-                self.phone.setText("")
-                self.email.setText("")
-                self.password.setText("")
-                QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok)  
-                self.loadData()           
-            else:
-                self.loadData()
-                QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)  
 
     def selectData(self):
         if(self.admin.isChecked()):

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>491</width>
+    <width>503</width>
     <height>344</height>
    </rect>
   </property>
@@ -95,25 +95,6 @@ color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="updateb">
-              <property name="font">
-               <font>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">color: rgb(255, 255, 255);
-background-color: rgb(0, 170, 0);</string>
-              </property>
-              <property name="text">
-               <string>Update</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="addb">
               <property name="font">
                <font>
@@ -128,7 +109,10 @@ background-color: rgb(0, 170, 0);</string>
 color: rgb(255, 255, 255);</string>
               </property>
               <property name="text">
-               <string>Add</string>
+               <string>Save</string>
+              </property>
+              <property name="shortcut">
+               <string>Return</string>
               </property>
              </widget>
             </item>

@@ -239,24 +239,16 @@ color: rgb(255, 255, 255);</string>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="updateb">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(85, 85, 255);
-color: rgb(255, 255, 255);</string>
-       </property>
-       <property name="text">
-        <string>Update</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="addb">
        <property name="styleSheet">
         <string notr="true">background-color: rgb(85, 85, 255);
 color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
-        <string>Add New</string>
+        <string>Save</string>
+       </property>
+       <property name="shortcut">
+        <string>Return</string>
        </property>
       </widget>
      </item>

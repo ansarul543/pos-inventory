@@ -13,7 +13,6 @@ class AddCustomer(QDialog):
         uic.loadUi('./ui/addcustomer.ui', self)
         self.setWindowIcon(QtGui.QIcon("./images/carti.png"))
         self.setWindowTitle("New Customer")
-        self.addCusBtn.clicked.connect(self.addCus)
         self.uid=uid  
         self.tableWidget.setHorizontalHeaderLabels(["ID","Name","Email","Phone","Type","Website","Address","Party Code","Discount %"])
         self.conn = sqlite3.connect('./database/data.db')
@@ -48,23 +47,27 @@ class AddCustomer(QDialog):
             QMessageBox.warning(None, ("Discount is required"), 
             ("Discount is required"),
              QMessageBox.Ok)             
-        else:    
-            cur = self.conn.cursor()
-            result = cur.execute("UPDATE customer SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=?,discount=? WHERE id=?",(name,email,phone,type,website,address,partycode,discount,self.id,))
-            self.conn.commit()
-            if(result):
-                self.loadData()
-                self.name.setText("")
-                self.email.setText("")
-                self.phone.setText("")
-                self.website.setText("")
-                self.address.setPlainText("")
-                self.partycode.setText("")         
-                self.discount.setText("0")    
-                cur.close()      
-                QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+        else:   
+            if self.id !="": 
+                cur = self.conn.cursor()
+                result = cur.execute("UPDATE customer SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=?,discount=? WHERE id=?",(name,email,phone,type,website,address,partycode,discount,self.id,))
+                self.conn.commit()
+                if(result):
+                    self.loadData()
+                    self.name.setText("")
+                    self.email.setText("")
+                    self.phone.setText("")
+                    self.website.setText("")
+                    self.address.setPlainText("")
+                    self.partycode.setText("")         
+                    self.discount.setText("0")   
+                    self.id="" 
+                    cur.close()      
+                    QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+                else:
+                    QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)    
             else:
-                QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)    
+                self.addCus()        
 
     def search(self):
         sv = self.searchv.text()  

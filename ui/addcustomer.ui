@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>947</width>
-    <height>426</height>
+    <height>557</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -88,6 +88,19 @@ background-color: rgb(252, 242, 231);
       </item>
       <item row="5" column="1">
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
         <item row="0" column="1">
          <widget class="QPushButton" name="deleteb">
           <property name="styleSheet">
@@ -106,38 +119,12 @@ color: rgb(255, 255, 255);</string>
 color: rgb(255, 255, 255);</string>
           </property>
           <property name="text">
-           <string>Update</string>
+           <string>Save</string>
+          </property>
+          <property name="shortcut">
+           <string>Return</string>
           </property>
          </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QPushButton" name="addCusBtn">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color: rgb(0, 0, 0);
-color: rgb(255, 255, 255);</string>
-          </property>
-          <property name="text">
-           <string>Add</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>

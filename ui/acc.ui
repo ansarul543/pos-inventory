@@ -182,19 +182,10 @@ color: rgb(255, 255, 255);</string>
            </font>
           </property>
           <property name="text">
-           <string>Update</string>
+           <string>Save</string>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="addb">
-          <property name="font">
-           <font>
-            <pointsize>10</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>Add</string>
+          <property name="shortcut">
+           <string>Return</string>
           </property>
          </widget>
         </item>

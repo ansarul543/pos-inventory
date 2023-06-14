@@ -24,7 +24,6 @@ class Supplier(QDialog):
         self.editb.clicked.connect(self.savedata)
         self.searchb.textChanged.connect(self.search)
         self.tableWidget.doubleClicked.connect(self.ddbclick)
-        self.pushButton.clicked.connect(self.addS)
         self.id=""
 
     def savedata(self):
@@ -44,21 +43,26 @@ class Supplier(QDialog):
             ("Phone is required"),
              QMessageBox.Ok)   
         else:    
-            cur = self.conn.cursor()
-            result = cur.execute("UPDATE supplier SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=? WHERE id=?",(name,email,phone,type,website,address,partycode,self.id,))
-            self.conn.commit()
-            if(result):
-                cur.close()
-                self.name.setText("")
-                self.email.setText("")
-                self.phone.setText("")
-                self.website.setText("")
-                self.address.setPlainText("")
-                self.partycode.setText("")
-                self.loadData()
-                QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+            if self.id !="":
+                cur = self.conn.cursor()
+                result = cur.execute("UPDATE supplier SET name=?,email=?,phone=?,type=?,website=?,address=?,partycode=? WHERE id=?",(name,email,phone,type,website,address,partycode,self.id,))
+                self.conn.commit()
+                if(result):
+                    cur.close()
+                    self.name.setText("")
+                    self.email.setText("")
+                    self.phone.setText("")
+                    self.website.setText("")
+                    self.address.setPlainText("")
+                    self.partycode.setText("")
+                    self.id=""
+                    self.loadData()
+                    QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+                else:
+                    QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)    
             else:
-                QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)    
+                self.addS()
+
     def select(self):
         if(self.sup.isChecked()):
             return "Supplier"      

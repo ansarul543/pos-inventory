@@ -66,6 +66,9 @@ color: rgb(255, 255, 255);</string>
      <property name="text">
       <string>   Sent Message   </string>
      </property>
+     <property name="shortcut">
+      <string>Return</string>
+     </property>
     </widget>
    </item>
   </layout>

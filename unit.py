@@ -21,7 +21,7 @@ class Unit(QDialog):
         self.deleteb.clicked.connect(self.deleteData)
         self.tableWidget.doubleClicked.connect(self.ddbclick)
         self.id =""
-        self.updateb.clicked.connect(self.updateData)
+
 
     def updateData(self):
         name = self.u_name.text()       
@@ -78,16 +78,19 @@ class Unit(QDialog):
             ("Name Required"),
              QMessageBox.Cancel) 
         else:    
-            result = cur.execute("INSERT INTO unit(unit_name)VALUES(?)",(name,))
-            self.conn.commit()
-            if(result):
-                self.u_name.setText("")
-                QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok)  
-                self.loadData()           
+            if self.id=="":
+                result = cur.execute("INSERT INTO unit(unit_name)VALUES(?)",(name,))
+                self.conn.commit()
+                if(result):
+                    self.u_name.setText("")
+                    QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok)  
+                    self.loadData()           
+                else:
+                    self.loadData()
+                    QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)    
+                cur.close()      
             else:
-                self.loadData()
-                QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)    
-        cur.close()        
+                self.updateData()      
    
     def search(self):
         sv = self.searchv.text()  

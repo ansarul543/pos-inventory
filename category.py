@@ -21,7 +21,7 @@ class Category(QDialog):
         self.deleteb.clicked.connect(self.deleteData)
         self.tableWidget.doubleClicked.connect(self.ddbclick)
         self.id =""
-        self.updateb.clicked.connect(self.updateData)
+
 
     def updateData(self):
         name = self.cat_name.text()  
@@ -77,17 +77,20 @@ class Category(QDialog):
             QMessageBox.warning(None, ("Name Required"), 
             ("Name Required"),
              QMessageBox.Cancel) 
-        else:    
-            result = cur.execute("INSERT INTO category(cat_name)VALUES(?)",(name,))
-            self.conn.commit()
-            if(result):
-                self.cat_name.setText("")
-                QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok)  
-                self.loadData()           
+        else: 
+            if self.id =="":    
+                result = cur.execute("INSERT INTO category(cat_name)VALUES(?)",(name,))
+                self.conn.commit()
+                if(result):
+                    self.cat_name.setText("")
+                    QMessageBox.information(None, ("Successful"), ("Data added successfully"),QMessageBox.Ok)  
+                    self.loadData()           
+                else:
+                    self.loadData()
+                    QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)   
+                cur.close()
             else:
-                self.loadData()
-                QMessageBox.warning(None, ("Failed"), ("Data not added "),QMessageBox.Cancel)   
-            cur.close()
+                self.updateData()    
 
    
     def search(self):

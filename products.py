@@ -27,13 +27,12 @@ class Products(QWidget):
         self.unitData()
         self.uid=uid
         self.role=role
-        self.addb.clicked.connect(self.addData)
+        self.addb.clicked.connect(self.updateData)
         self.loadData()
         self.tableWidget.setHorizontalHeaderLabels(["ID","Item Code","Barcode","Price Status","Product Name","Category","Unit","Purchase Rate","Wholesale","Sales Rate","Re Order Qtn"])
         self.searchv.textChanged.connect(self.search)
         self.tableWidget.doubleClicked.connect(self.ddbclick)
         self.deleteb.clicked.connect(self.deleteData)
-        self.updateb.clicked.connect(self.updateData)
         self.ledgerb.clicked.connect(self.ledgerpro)
         self.id=""
         self.buy.textChanged.connect(self.buySet)
@@ -93,30 +92,33 @@ class Products(QWidget):
             ("Reorder not be empty please fill atleat 0"),
              QMessageBox.Ok)               
         else:    
-            result = cur.execute("UPDATE products SET name=?,model=?,category=?,unit=?,buyrate=?,salerate=?,wholesale=?,tax=?,discount=?,reorder=?,status=?,itemcode=?,hrate=? WHERE id=?",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,reorder,status,itemcode,hrate,self.id,))
-            self.conn.commit()
-            if(result):
-                self.loadData()
-                self.category.setCurrentText("Select Category")
-                self.unit.setCurrentText("Select Unit")
-                self.loadData()
-                self.categoryData()
-                self.unitData()
-                self.name.setText("")
-                self.model.setText("")
-                self.buy.setText("0")
-                self.sales.setText("0")
-                self.wholesale.setText("0")
-                self.pqtn.setText("0")
-                self.reorder.setText("0")
-                self.vat.setText("0")
-                self.id=""
-                self.itemcode.setText("")
-                self.status.setCurrentText("Fixed") 
-                cur.close()               
-                QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+            if self.id !="":
+                result = cur.execute("UPDATE products SET name=?,model=?,category=?,unit=?,buyrate=?,salerate=?,wholesale=?,tax=?,discount=?,reorder=?,status=?,itemcode=?,hrate=? WHERE id=?",(name,model,category,unit,buyrate,salerate,wholesale,tax,discount,reorder,status,itemcode,hrate,self.id,))
+                self.conn.commit()
+                if(result):
+                    self.loadData()
+                    self.category.setCurrentText("Select Category")
+                    self.unit.setCurrentText("Select Unit")
+                    self.loadData()
+                    self.categoryData()
+                    self.unitData()
+                    self.name.setText("")
+                    self.model.setText("")
+                    self.buy.setText("0")
+                    self.sales.setText("0")
+                    self.wholesale.setText("0")
+                    self.pqtn.setText("0")
+                    self.reorder.setText("0")
+                    self.vat.setText("0")
+                    self.id=""
+                    self.itemcode.setText("")
+                    self.status.setCurrentText("Fixed") 
+                    cur.close()               
+                    QMessageBox.information(None, ("Successful"), ("Data updated successfully"),QMessageBox.Ok) 
+                else:
+                    QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)   
             else:
-                QMessageBox.warning(None, ("Failed"), ("Data not updated "),QMessageBox.Ok)                
+                self.addData()                     
 
 
     def ddbclick(self):
