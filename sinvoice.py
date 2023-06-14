@@ -33,6 +33,7 @@ class SalesInvoice(QDialog):
         self.refreshb.clicked.connect(self.refreshD)
         self.allb.clicked.connect(self.allDa)
         self.msgb.clicked.connect(self.messageB)
+        self.textEdit.setMaximumWidth(200)
 
     def messageB(self):
         NewInd = self.tableWidget.currentIndex().siblingAtColumn(0)

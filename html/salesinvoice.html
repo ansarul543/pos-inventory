@@ -1,7 +1,10 @@
 <style>
     .main{
-        width: 100%;
-        border: 2px solid black;
+        width: 219px!important;
+        height: auto;
+        border: 0px solid black;
+        margin: 0px;
+        padding: 0px;
     }
     h2,h3,h5{
         color: rgb(43, 41, 32);
@@ -16,7 +19,7 @@
     }
 
     td {
-     border: dotted;
+     border:dotted;
      border-left: none;
      border-right: none;
      text-align: center;
@@ -26,11 +29,15 @@
         border-collapse: collapse;
 
         }
+    th{
+        color: rgb(15, 15, 15);
+        font-weight: normal;
+    }    
 </style>
 
     <div class="main" >
         <div class="header" style="text-align: center;" >
-            <h2>{{setting[1]}}</h2>
+            <h3>{{setting[1]}}</h3>
             <p style="padding-top: 5px;"> {{setting[6]}} </p>
             <p>Phone : {{setting[2]}} <span>{% if setting[3]!="" %} Email : {{setting[3]}} {% endif %}</span> </p>
             <p >{% if setting[4]!="" %} Website : {{setting[4]}} {% endif %}</p>
@@ -39,7 +46,7 @@
         <div style="border: 3px solid black; margin-bottom: 5px;"></div>
 
         <div style="margin-bottom: 100px;">
-            <h3 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;">Sales Invoice</h3>
+            <h4 style="text-align: center; padding: 5px;border: 1px solid black; margin-top: 10px;">Sales Invoice</h4>
                 <div>
                     <p> Invoice No : {{invoice[0]}} </p>
                     <p> Sale Date : {{invoice[1]}}</p>
@@ -56,15 +63,16 @@
              {% if data|length>0 %} 
              <table width="100%">
                 <tr>
+                    <th>#</th>
                     <th>Item Name</th>
                     <th>Quantity</th>
                     <th>Rate</th>
                     <th>Discount</th>
                     <th>Amount</th>
                 </tr>
- 
                 {% for data in data %}
                 <tr>
+                    <td>{{ loop.index }}</td>
                  <td>{{data[3]}} 
                      {% if data[9]!="0" %} 
                      <span>VAT {{data[9]}}%: {{(data[5]|float*data[4]|float-data[7]|float) * data[9]|float/100}}</span>
@@ -82,8 +90,8 @@
                  {% endfor %}
     
              <tr>
-                 <td colspan="3" style="border: none;"></td>
-                 <td colspan="1" style="border-left: none;border-right: none;text-align: right; border-bottom: dotted;">
+                 <td colspan="4" style="border: none;"></td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right; border-bottom:  dotted;">
                      <h5>Vat : </h5>
                      <h5>Transport/Labour : </h5>
                      <h5>Sub Total :</h5>
@@ -113,12 +121,12 @@
                  </td>
              </tr>
              <tr>
-                 <td colspan="3" style="border: none;"></td>
-                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border-bottom:dotted;">
+                 <td colspan="4" style="border: none;"></td>
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border-bottom: dotted;">
                      <h5>Total :</h5>
                      <h5>Paid : </h5>
                  </td>
-                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border-bottom:dotted;">
+                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border-bottom: dotted;">
                    <p>{{total|float+invoice[5]|float+invoice[6]|float-invoice[7]|float}}</p>
                    {% if invoice[8]=="0" %}
                    <p>0.00</p>
@@ -128,32 +136,20 @@
                  </td>
              </tr>
              <tr>
-                 <td colspan="3" style="border: none;"></td>
+                 <td colspan="4" style="border: none;"></td>
                  <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
                      <h5>Due :</h5>
-                 </td>
-                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
-                     <p>{{total|float+invoice[5]|float+invoice[6]|float-invoice[7]|float-invoice[8]|float}}</p>
-                 </td>
-             </tr>
-             <tr>
-                 <td colspan="3" style="border: none;"></td>
-                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
                      <h5>Previous Due :</h5>
-                 </td>
-                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
-                     <p>{{invoice[12]}}</p>
-                 </td>
-             </tr>
-             <tr>
-                 <td colspan="3" style="border: none;"></td>
-                 <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
                      <h5>Total Due :</h5>
                  </td>
                  <td colspan="1" style="border-left: none;border-right: none;text-align: right;border:none">
+                     <p>{{total|float+invoice[5]|float+invoice[6]|float-invoice[7]|float-invoice[8]|float}}</p>
+                     <p>{{invoice[12]}}</p>
                      <p>{{total|float+invoice[5]|float+invoice[6]|float-invoice[7]|float-invoice[8]|float + invoice[12]|float}}</p>
                  </td>
              </tr>
+    
+
              </table>
              {% else %} 
              <div>

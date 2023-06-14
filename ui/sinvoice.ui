@@ -171,7 +171,11 @@ color: rgb(255, 255, 255);</string>
          </widget>
         </item>
         <item row="3" column="0" colspan="14">
-         <widget class="QTextEdit" name="textEdit"/>
+         <widget class="QTextEdit" name="textEdit">
+          <property name="styleSheet">
+           <string notr="true">width:100px;</string>
+          </property>
+         </widget>
         </item>
         <item row="0" column="6">
          <spacer name="horizontalSpacer_4">
